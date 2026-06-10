@@ -1,0 +1,4102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大语言模型（LLM）推理全流程详解：从输入文本到输出文本的核心机制与高级面试题</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --blue: #60a5fa;
+            --green: #34d399;
+            --purple: #a78bfa;
+            --red: #f87171;
+            --yellow: #fbbf24;
+            --border: #334155;
+            --code-bg: #0c1222;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+        h1 { text-align: center; font-size: 2.4rem; margin-bottom: 8px; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { text-align: center; color: var(--muted); margin-bottom: 50px; font-size: 1.05rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 50px; position: sticky; top: 0; background: var(--bg); padding: 12px 0; z-index: 100; border-bottom: 1px solid var(--border); }
+        .nav a { padding: 6px 14px; border-radius: 6px; background: var(--card); color: var(--muted); text-decoration: none; font-size: 0.85rem; border: 1px solid var(--border); transition: all 0.2s; }
+        .nav a:hover { color: var(--blue); border-color: var(--blue); }
+        .section { background: var(--card); border-radius: 12px; padding: 32px; margin-bottom: 40px; border: 1px solid var(--border); }
+        h2 { color: var(--blue); font-size: 1.5rem; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        h3 { color: var(--purple); margin: 24px 0 12px; font-size: 1.15rem; }
+        h4 { color: var(--green); margin: 18px 0 8px; font-size: 1rem; }
+        h5 { color: var(--yellow); margin: 16px 0 8px; font-size: 0.95rem; }
+        h6 { color: var(--muted); margin: 12px 0 6px; font-size: 0.9rem; }
+        p { margin-bottom: 12px; color: #e2e8f0; }
+        ul, ol { margin: 8px 0 16px 24px; color: #e2e8f0; }
+        li { margin-bottom: 6px; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: rgba(51,65,85,0.7); color: #e2e8f0; font-weight: 600; }
+        tr:hover td { background: rgba(51,65,85,0.3); }
+        code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-family: "JetBrains Mono", monospace; font-size: 0.88em; color: #a5b4fc; }
+        .code-block { background: var(--code-bg); padding: 16px 20px; border-radius: 8px; font-family: "JetBrains Mono", monospace; overflow-x: auto; border: 1px solid var(--border); color: #c4b5fd; margin: 16px 0; white-space: pre-wrap; font-size: 0.88rem; line-height: 1.5; }
+        .code-block code { background: none; padding: 0; color: inherit; font-size: inherit; }
+        .quote { border-left: 4px solid var(--green); padding: 12px 20px; background: rgba(16,185,129,0.08); border-radius: 0 8px 8px 0; margin: 16px 0; }
+        .quote p { margin-bottom: 4px; }
+        img { max-width: 100%; border-radius: 8px; margin: 16px auto; display: block; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        strong { color: #f1f5f9; }
+        sup { font-size: 0.7em; color: var(--muted); }
+        a { color: var(--blue); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+        @media (max-width: 768px) {
+            .container { padding: 20px 12px 40px; }
+            .section { padding: 20px 16px; }
+            h1 { font-size: 1.6rem; }
+            .nav { gap: 4px; }
+            .nav a { font-size: 0.75rem; padding: 4px 8px; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 6px 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>大语言模型（LLM）推理全流程详解：从输入文本到输出文本的核心机制与高级面试题</h1>
+    <p class="subtitle">在评估 AI Agent 工程师或大语言模型（LLM）算法工程师时，如果仅仅孤立地考察某个知识点（如多头注意力、词表、KV Cache），很难看出候选人对系统架构的整体把握。真正的专家能够将这些概念串联起来，形成一条清晰的数据流。</p>
+
+    <div class="nav">
+        <a href="#s0">全流程概览</a>
+        <a href="#s1">文本的数字化起点</a>
+        <a href="#s2">赋予数字以语义</a>
+        <a href="#s3">注意力机制与上下文融合</a>
+        <a href="#s4">加速推理的利器</a>
+        <a href="#s5">从向量回到文本</a>
+        <a href="#s6">训练与推理的差异对比</a>
+        <a href="#s7">完整流程的数值示例（端到端追踪）</a>
+        <a href="#s8">总结</a>
+    </div>
+
+    
+
+<p>本文档打破了孤立模块的讲解方式，<strong>以 LLM 自回归推理的全流程（从用户输入到最终文本输出）为核心主线</strong>，将所有核心机制（分词、嵌入、位置编码、多头注意力、动态上下文融合、KV Cache、LM Head、采样策略）整合其中。每个知识点均配有<strong>完整的数值计算案例</strong>，可逐步追踪数据在模型中的流动过程。文档同时以面试题的形式组织各模块，适合用于技术面试准备和系统性学习。</p>
+<hr />
+<div class="section" id="s0"><h2>全流程概览</h2>
+<p>在深入每个环节之前，我们先从宏观上理解整个数据流。下图展示了从用户输入一段文本到模型输出文本的完整处理链路：</p>
+<p><img alt="LLM文本处理全流程图" src="https://private-us-east-1.manuscdn.com/sessionFile/dBnsgkjHqFZastZQ1wdxqd/sandbox/BoABV9BZJ3zYfXQ9wYoGB6-images_1779800025151_na1fn_L2hvbWUvdWJ1bnR1L2xsbV9mbG93.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvZEJuc2drakhxRlphc3RaUTF3ZHhxZC9zYW5kYm94L0JvQUJWOUJaSjN6WWZYUTl3WW9HQjYtaW1hZ2VzXzE3Nzk4MDAwMjUxNTFfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwyeHNiVjltYkc5My5wbmciLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&amp;Key-Pair-Id=K2HSFNDJXOU9YS&amp;Signature=YrWh8J2KPb0b4AO8MGH6CF-SWm0eOW7Iv~wPZKnpvOLOhaU1-LLtDSTd4bT2HO8wU1ItjKgTPvCNMTfLyGSFtcaO0~RUxvjJX8CE37HsC0O687Wx2LSZL6xDU2TOOrTXzyesQwkdmhrPRRlTEx1uJR50HPAug9OM9ipG0iB5qyzehs27ktLnc1dGNQccScRrhlomIjzF9vADvSWweA43JfvG1piXFjpLI~bj~bibxFd2kuqk0GU9Ne2CBMWPkFxzfKu~pII-CopxWilE2mlUi3dazgnuDtt94nPYnfTeUbjrcz0PIPhud0HPgm7-aurdDpxOT87h~JevjiHPzziqsQ__" /></p>
+<p>当用户输入一段文本（Prompt），模型生成回复的过程经历了以下完整链路：</p>
+<ol>
+<li>
+<p><strong>用户输入与预处理</strong>：接收自然语言文本（如："我爱苹果"）。</p>
+</li>
+<li>
+<p><strong>分词与编码（Tokenizer）</strong>：查词表，将文本切分为 Token，并映射为整数 ID 序列。</p>
+</li>
+<li>
+<p><strong>静态嵌入映射（Embedding）</strong>：用 ID 序列在嵌入矩阵中查表，得到每个 Token 唯一的静态初始向量。</p>
+</li>
+<li>
+<p><strong>位置编码注入（Positional Encoding）</strong>：在静态向量上叠加位置信息，打破自注意力的置换不变性。</p>
+</li>
+<li>
+<p><strong>Transformer 层处理（多层循环）</strong>：<br />
+  - <strong>生成 Q/K/V</strong>：输入向量乘以三个权重矩阵，得到 Query、Key、Value 向量。<br />
+  - <strong>KV Cache 写入</strong>：将当前 Token 的 Key 和 Value 向量<strong>存入内存缓存（KV Cache）</strong>。这是第一处 KV Cache 操作时间点。<br />
+  - <strong>KV Cache 读取与注意力计算</strong>：<strong>从 KV Cache 中读取</strong>之前所有历史 Token 的 K 和 V 向量。用当前 Token 的 Q 与所有历史 K 计算相似度得分，然后按得分对所有历史 V 进行加权求和。这是第二处 KV Cache 操作时间点。<br />
+  - <strong>FFN 与残差连接</strong>：注意力输出经过前馈神经网络（FFN）进行非线性变换，并加上残差连接，得到该层的最终输出。</p>
+</li>
+<li>
+<p><strong>输出预测（LM Head）</strong>：最后一层输出的隐藏状态向量，经过一个线性映射层（LM Head），转换为词表大小的得分（Logits）。然后通过 Softmax 函数将得分转化为概率分布。</p>
+</li>
+<li>
+<p><strong>采样与解码（Decoding）</strong>：根据概率分布（结合 Temperature、Top-P 等策略）选出下一个 Token ID。通过 Tokenizer 的词表反向查找，将 ID 还原为人类可读的文本字词。</p>
+</li>
+<li>
+<p><strong>自回归循环</strong>：将新生成的 Token ID 拼接到历史输入序列的末尾，然后<strong>仅针对这个新 Token</strong>重复步骤 3~7（因为历史 Token 的 K/V 已经在 Cache 中了，不需要从头算），直到模型生成特殊的停止符（<code>&lt;eos&gt;</code>）。</p>
+</li>
+</ol>
+<p>整个流程可以概括为以下几个关键阶段（注意 KV Cache 的贯穿作用）：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>核心组件</th>
+<th>输入</th>
+<th>输出</th>
+<th>作用 / 具体操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文本切分</td>
+<td>分词器 (Tokenizer)</td>
+<td>原始文本字符串</td>
+<td>Token序列</td>
+<td>将文本拆分为模型可处理的最小单元</td>
+</tr>
+<tr>
+<td>数字映射</td>
+<td>词表 (Vocabulary)</td>
+<td>Token序列</td>
+<td>Token ID序列</td>
+<td>查表：将Token映射为唯一整数标识</td>
+</tr>
+<tr>
+<td>语义表示</td>
+<td>嵌入矩阵 (Embedding)</td>
+<td>Token ID序列</td>
+<td>词嵌入向量矩阵</td>
+<td>查表：将离散ID转换为连续高维语义向量</td>
+</tr>
+<tr>
+<td>位置注入</td>
+<td>位置编码 (PE)</td>
+<td>词嵌入向量</td>
+<td>含位置信息的向量</td>
+<td>逐元素相加：注入序列顺序信息</td>
+</tr>
+<tr>
+<td>上下文建模</td>
+<td>Transformer (QKV)</td>
+<td>含位置信息的向量</td>
+<td>上下文感知的隐藏状态</td>
+<td>矩阵乘法与加权求和：融合全局上下文</td>
+</tr>
+<tr>
+<td><strong>缓存管理</strong></td>
+<td><strong>KV Cache</strong></td>
+<td><strong>当前层的 K 和 V</strong></td>
+<td><strong>完整的历史 K 和 V</strong></td>
+<td><strong>写入当前KV，读取历史KV，避免重复计算</strong></td>
+</tr>
+<tr>
+<td>概率预测</td>
+<td>输出层 (LM Head)</td>
+<td>最终隐藏状态向量</td>
+<td>词表上的概率分布</td>
+<td>矩阵映射+Softmax：预测下一个Token概率</td>
+</tr>
+<tr>
+<td>文本生成</td>
+<td>采样策略 + 反映射</td>
+<td>概率分布</td>
+<td>输出文本</td>
+<td>掷骰子选ID，查表转回文本</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h3 id="_2">贯穿全文的统一案例设定</h3>
+<p>为了让每个模块的讲解可以<strong>端到端追踪</strong>，我们设定一个贯穿全文的统一案例：</p>
+<blockquote class="quote">
+<p><strong>输入文本</strong>："我 爱 苹果"（已预分词为 3 个 Token）<strong>模型参数</strong>：<code>vocab_size=6</code>, <code>d_model=4</code>, <code>num_heads=2</code>, <code>d_head=2</code>, <code>1 层 Transformer</code><strong>词表</strong>：<code>{"我":0, "爱":1, "苹果":2, "手机":3, "很":4, "</code><eos><code>":5}</code></p>
+</blockquote>
+<p>这个极简设定足以完整演示从输入到输出的每一步数值变化。</p>
+<hr />
+</div><div class="section" id="s1"><h2>一、 文本的数字化起点：分词器与词表</h2>
+<p>大语言模型并不能直接理解人类语言的字母或汉字。对于模型而言，所有的计算都是基于数字进行的。因此，文本必须首先被转换为数字表示。这一过程由<strong>分词器（Tokenizer）</strong>完成，它是模型与人类语言之间的桥梁。</p>
+<h3 id="tokenizer-embedding">面试题：从文本到向量（Tokenizer 与 Embedding 机制）</h3>
+<blockquote class="quote">
+<p><strong>题目</strong>：在 LLM 推理的第一步，用户文本是如何被转换为模型可计算的向量的？请详细说明 Tokenizer 在训练与推理阶段的作用差异，并解释为什么绝对不能混用不同模型的 Tokenizer。</p>
+</blockquote>
+<h3 id="11-tokenizer">1.1 分词器（Tokenizer）的工作原理</h3>
+<p>分词器的核心任务是将非结构化的原始文本切分为模型可以处理的最小单元，这些单元被称为"Token"。Token可以是完整的单词、单词的一部分（子词，Subword）、单个字符，甚至是标点符号。分词器的设计直接影响模型的词表大小、输入序列长度以及对不同语言的处理能力。</p>
+<p>在分词的具体实现上，不同的模型采用了不同的算法。目前主流的LLM（如GPT系列、LLaMA、Qwen等）普遍采用基于子词的分词算法。以下是三种最常见的子词分词方法的对比：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>分词算法</th>
+<th>代表模型</th>
+<th>核心思想</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BPE (Byte-Pair Encoding)</td>
+<td>GPT系列, LLaMA</td>
+<td>从字符开始，反复合并最高频的相邻字符对</td>
+<td>简单高效，适合多语言</td>
+</tr>
+<tr>
+<td>WordPiece</td>
+<td>BERT</td>
+<td>类似BPE，但基于似然概率选择合并</td>
+<td>使用特殊前缀 <code>##</code> 标记子词</td>
+</tr>
+<tr>
+<td>SentencePiece</td>
+<td>Qwen, T5</td>
+<td>直接在原始文本（含空格）上训练</td>
+<td>无需预分词，语言无关</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>BPE算法的工作过程</strong>可以用一个简化的例子来说明。假设我们有一个小型语料库，BPE的训练过程如下：</p>
+<blockquote class="quote">
+<p><strong>初始状态：</strong> 将所有单词拆分为字符序列。例如 "lower" → <code>['l', 'o', 'w', 'e', 'r']</code><strong>迭代合并：</strong> 统计所有相邻字符对的出现频率，将最高频的字符对合并为一个新符号。例如，如果 <code>('e', 'r')</code> 出现频率最高，则将其合并为 <code>'er'</code>。<strong>重复：</strong> 继续统计和合并，直到词表达到预设大小。例如 <code>['l', 'o', 'w', 'er']</code> → <code>['l', 'ow', 'er']</code> → <code>['low', 'er']</code> → <code>['lower']</code>。</p>
+</blockquote>
+<p>这种方法的优势在于：第一，它能够有效处理未登录词（Out-of-Vocabulary, OOV），即使遇到生僻词，BPE也能将其拆分为常见的子词组合，避免了模型无法识别的情况。第二，它在效率与表现之间取得了良好平衡——相比于字符级分词，子词分词序列更短，计算效率更高；相比于词级分词，其词表更小，避免了稀疏性问题。</p>
+<h3 id="12-vocabulary">1.2 词表（Vocabulary）的作用</h3>
+<p>词表是分词器在训练阶段生成的一个<strong>静态映射表</strong>，它包含了模型所能识别的所有Token及其对应的唯一整数ID。词表的大小是模型设计时的一个重要超参数，现代LLM的词表大小通常在30,000到150,000之间。</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>模型</th>
+<th>词表大小</th>
+<th>分词方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-2</td>
+<td>50,257</td>
+<td>BPE</td>
+</tr>
+<tr>
+<td>GPT-4</td>
+<td>~100,000</td>
+<td>BPE (cl100k_base)</td>
+</tr>
+<tr>
+<td>LLaMA 2</td>
+<td>32,000</td>
+<td>SentencePiece (BPE)</td>
+</tr>
+<tr>
+<td>LLaMA 3</td>
+<td>128,256</td>
+<td>BPE (tiktoken)</td>
+</tr>
+<tr>
+<td>Qwen-2</td>
+<td>151,643</td>
+<td>SentencePiece</td>
+</tr>
+</tbody>
+</table></div>
+<p>词表的大小需要精心权衡。更大的词表意味着每个常见词或短语可以用单个Token表示，从而缩短序列长度、减少推理步数；但同时也会增大嵌入矩阵的参数量，提高计算和存储成本。</p>
+<h3 id="13-tokenizer">1.3 Tokenizer 在训练与推理阶段的差异</h3>
+<p>理解 Tokenizer 在不同阶段的作用差异至关重要：</p>
+<p><strong>训练阶段（构建规则与词表）</strong>：</p>
+<p>以 BPE 算法为例，训练过程如下：</p>
+<pre class="code-block"><code>初始字符集: ['我', '爱', '苹', '果', '手', '机', '很', '好', '吃', '贵', ...]
+第1轮统计: &quot;苹&quot;+&quot;果&quot; 出现频率最高(10000次) → 合并为 &quot;苹果&quot;
+第2轮统计: &quot;好&quot;+&quot;吃&quot; 出现频率次高(8000次) → 合并为 &quot;好吃&quot;
+第3轮统计: &quot;手&quot;+&quot;机&quot; 出现频率(7500次) → 合并为 &quot;手机&quot;
+...
+重复直到词表达到目标大小(如 32000)
+</code></pre>
+
+<p>训练完成后，词表和合并规则被<strong>永久冻结</strong>，保存为 <code>tokenizer.json</code> 或 <code>vocab.txt</code>。</p>
+<p><strong>推理阶段（执行规则）</strong>：</p>
+<p>仅仅是<strong>应用</strong>训练阶段冻结的规则，不再学习新知识：</p>
+<pre class="code-block"><code>输入: &quot;苹果手机&quot;
+应用合并规则: &quot;苹&quot;+&quot;果&quot; → &quot;苹果&quot; (规则存在，合并)
+应用合并规则: &quot;手&quot;+&quot;机&quot; → &quot;手机&quot; (规则存在，合并)
+输出: [&quot;苹果&quot;, &quot;手机&quot;] → IDs: [2, 3]
+</code></pre>
+
+<h3 id="14">1.4 分词的完整示例</h3>
+<p>以输入文本 "I am learning AI" 为例，分词的完整过程如下：</p>
+<p><strong>步骤一：原始文本输入</strong></p>
+<pre class="code-block"><code>&quot;I am learning AI&quot;
+</code></pre>
+
+<p><strong>步骤二：分词器切分为Token序列</strong></p>
+<pre class="code-block"><code>[&quot;I&quot;, &quot; am&quot;, &quot; learn&quot;, &quot;ing&quot;, &quot; AI&quot;]
+</code></pre>
+
+<p>注意：在BPE中，空格通常被视为Token的一部分（如 " am" 前面有空格），这有助于区分词首和词中的子词。</p>
+<p><strong>步骤三：词表映射为Token ID序列</strong></p>
+<pre class="code-block"><code>[40, 716, 4673, 278, 15592]
+</code></pre>
+
+<p>至此，一段人类可读的文本就被转换为了一串整数序列，可以被模型的后续计算层处理。</p>
+<h3 id="15-tokenizer">1.5 案例演示：混用 Tokenizer 的灾难</h3>
+<p>绝对不能混用不同模型的 Tokenizer。假设我们错误地用 BERT 的 Tokenizer 处理文本，然后喂给 LLaMA 3 模型：</p>
+<pre class="code-block"><code>BERT Tokenizer 处理 &quot;apple&quot;:
+  → Token: &quot;apple&quot;, ID: 8566
+
+Llama 3 嵌入矩阵第 8566 行:
+  → 对应的是 Token &quot;irement&quot; (某个子词片段)
+  → 取出的向量代表 &quot;irement&quot; 的语义，而非 &quot;apple&quot;
+
+结果: 模型认为输入的是 &quot;irement&quot;，输出完全错误
+</code></pre>
+
+<p>更严重的情况——如果 BERT Tokenizer 产生了 ID <code>95000</code>，而 Llama 3 的嵌入矩阵只有 <code>128000</code> 行，虽然不会越界，但语义完全错位。如果用 GPT-4 的 Tokenizer（100k 词表）喂给 BERT（30522 词表），ID <code>95000</code> 直接导致<strong>数组越界崩溃</strong>。</p>
+<h3 id="_4">评分要点</h3>
+<ul>
+<li>
+<p>清晰描述文本→ID→静态向量的两步映射过程，并能给出具体数值示例。</p>
+</li>
+<li>
+<p>深刻理解 Tokenizer 在训练期是"学习规则构建词表"，推理期是"执行规则查表"。</p>
+</li>
+<li>
+<p>准确指出混用 Tokenizer 导致嵌入矩阵索引错位及数组越界的灾难性后果。</p>
+</li>
+</ul>
+<hr />
+</div><div class="section" id="s2"><h2>二、 赋予数字以语义：词嵌入与位置编码</h2>
+<h3 id="_6">面试题：打破无序（位置编码的必要性与实现）</h3>
+<blockquote class="quote">
+<p><strong>题目</strong>：在拿到 Token 的静态嵌入向量后，为什么必须紧接着注入位置编码（Positional Encoding）？它在 Transformer 架构中具体体现在哪个位置？请结合具体数值说明。</p>
+</blockquote>
+<h3 id="21-word-embeddings">2.1 词嵌入（Word Embeddings）的本质</h3>
+<p>离散的Token ID虽然是数字，但它们之间没有数学上的连续性和相似性。例如，Token ID 40 和 41 在语义上可能毫无关联。为了让模型理解词与词之间的关系，需要将这些离散的ID转换为连续的高维向量，这就是词嵌入（Embedding）的过程。</p>
+<p>词嵌入是一个高维浮点数向量（例如，维度为4096或12288），它在连续的向量空间中表示一个Token的语义信息。在这个空间中，语义相似的词其对应的向量在几何距离上更近。一个经典的例子是词向量的线性关系：</p>
+<blockquote class="quote">
+<p><code>vector("国王") - vector("男人") + vector("女人") ≈ vector("女王")</code></p>
+</blockquote>
+<p>这说明词嵌入不仅仅是简单的数字编码，它真正捕获了词汇之间的语义结构。</p>
+<h3 id="22-embedding-matrix">2.2 嵌入矩阵（Embedding Matrix）与查找机制</h3>
+<p>嵌入矩阵是模型中最底层的参数矩阵之一，其维度为 <strong>V × d</strong>，其中V是词表大小，d是嵌入维度。可以将其视为一个巨大的查找表（Lookup Table），矩阵的每一行对应词表中一个Token的嵌入向量。</p>
+<p><strong>查找过程的数学表示：</strong></p>
+<p>假设词表大小 V = 100,000，嵌入维度 d = 4096，则嵌入矩阵 E 的形状为 <code>100000 × 4096</code>。对于输入的Token ID序列 <code>[id_1, id_2, ..., id_n]</code>，嵌入层的操作等价于：</p>
+<pre class="code-block"><code>X = E[id_1; id_2; ...; id_n]
+</code></pre>
+
+<p>即从矩阵 E 中按行索引取出对应的向量，拼接成一个 <code>n × d</code> 的矩阵。这个操作在实现上是一个高效的索引查找（Index Lookup），而非矩阵乘法。</p>
+<p><strong>嵌入矩阵的来源与训练：</strong></p>
+<p>嵌入矩阵中的参数并非人为设定，而是在模型训练过程中通过反向传播（Backpropagation）自动学习得到的。训练初期，嵌入矩阵通常使用随机初始化。随着训练的进行，模型通过损失函数的梯度信号不断调整每个Token的嵌入向量，使得语义相近的Token在向量空间中逐渐靠近。训练完成后，嵌入矩阵的参数就固定下来了。在推理阶段，模型直接使用训练好的嵌入矩阵进行查找，不再更新其参数。</p>
+<h3 id="_7">案例演示：完整的文本→向量转换</h3>
+<p>继续使用统一案例。假设嵌入矩阵 E（形状 <code>[6, 4]</code>，6 个词，每个词 4 维向量）如下：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>ID</th>
+<th>嵌入向量（第 ID 行）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>我</td>
+<td>0</td>
+<td>[0.12, 0.45, 0.78, 0.33]</td>
+</tr>
+<tr>
+<td>爱</td>
+<td>1</td>
+<td>[0.56, 0.23, 0.89, 0.67]</td>
+</tr>
+<tr>
+<td>苹果</td>
+<td>2</td>
+<td>[0.34, 0.91, 0.15, 0.72]</td>
+</tr>
+<tr>
+<td>手机</td>
+<td>3</td>
+<td>[0.88, 0.44, 0.62, 0.19]</td>
+</tr>
+<tr>
+<td>很</td>
+<td>4</td>
+<td>[0.21, 0.67, 0.43, 0.55]</td>
+</tr>
+<tr>
+<td><code>&lt;eos&gt;</code></td>
+<td>5</td>
+<td>[0.01, 0.02, 0.03, 0.04]</td>
+</tr>
+</tbody>
+</table></div>
+<p>查表结果：</p>
+<pre class="code-block"><code>ID 0 → E[0] = [0.12, 0.45, 0.78, 0.33]  ← &quot;我&quot;的静态向量
+ID 1 → E[1] = [0.56, 0.23, 0.89, 0.67]  ← &quot;爱&quot;的静态向量
+ID 2 → E[2] = [0.34, 0.91, 0.15, 0.72]  ← &quot;苹果&quot;的静态向量
+</code></pre>
+
+<p><strong>关键点</strong>：无论"苹果"出现在"苹果很好吃"还是"苹果手机很贵"中，这一步查到的向量<strong>完全相同</strong>——都是 <code>[0.34, 0.91, 0.15, 0.72]</code>。动态区分语义是后续 Transformer 层的工作。</p>
+<h3 id="23-word2vec-vs-transformer-embedding">2.3 Word2Vec 静态向量 vs. Transformer 动态 Embedding</h3>
+<p>嵌入矩阵的查表操作容易让人联想到 Word2Vec 等传统词向量方法。两者虽然在形式上都是将词映射为向量，但在本质上有根本性的区别：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>Word2Vec / GloVe（静态词向量）</th>
+<th>Transformer Embedding（动态上下文向量）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>向量性质</td>
+<td>一个词永远对应一个固定向量</td>
+<td>同一个词在不同上下文中输出向量不同</td>
+</tr>
+<tr>
+<td>多义词处理</td>
+<td>无法区分（"苹果"只有一个向量）</td>
+<td>通过注意力机制动态融合上下文，自动消歧</td>
+</tr>
+<tr>
+<td>训练方式</td>
+<td>独立训练（Skip-gram/CBOW），与下游任务解耦</td>
+<td>作为模型的一部分端到端训练</td>
+</tr>
+<tr>
+<td>上下文感知</td>
+<td>完全不感知上下文</td>
+<td>经过 Transformer 层后成为上下文的函数</td>
+</tr>
+<tr>
+<td>向量维度</td>
+<td>通常 100~300 维</td>
+<td>通常 4096~12288 维</td>
+</tr>
+<tr>
+<td>典型代表</td>
+<td>Word2Vec, GloVe, FastText</td>
+<td>GPT, BERT, LLaMA 的 Embedding 层</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>具体示例："苹果"在两种体系中的表现</strong></p>
+<pre class="code-block"><code>Word2Vec 方案:
+  &quot;我爱苹果&quot;   中的&quot;苹果&quot; → vec_apple = [0.34, 0.91, 0.15, ...]  (固定)
+  &quot;苹果手机很贵&quot; 中的&quot;苹果&quot; → vec_apple = [0.34, 0.91, 0.15, ...]  (完全相同！)
+  → 无法区分水果和品牌
+
+Transformer 方案:
+  嵌入层查表:  两个句子中&quot;苹果&quot;的初始向量相同 = [0.34, 0.91, 0.15, 0.72]
+  经过注意力层后:
+    &quot;我爱苹果&quot;   → output_苹果 = [0.724, 0.866, ...]  (融合了&quot;爱&quot;的语义)
+    &quot;苹果手机很贵&quot; → output_苹果 = [0.891, 0.312, ...]  (融合了&quot;手机&quot;&quot;贵&quot;的语义)
+  → 自动消歧，输出向量截然不同
+</code></pre>
+
+<p>这就是为什么 Transformer 架构的嵌入层虽然在查表阶段与 Word2Vec 类似（都是静态的 ID → 向量映射），但整个系统的表达能力远超传统词向量——<strong>静态嵌入只是起点，真正的语义理解发生在后续的注意力层中</strong>。</p>
+<p>从历史演进的角度看，词向量技术经历了三个阶段：</p>
+<ol>
+<li>
+<p><strong>静态词向量时代</strong>（Word2Vec, GloVe）：一词一向量，无法处理多义词。</p>
+</li>
+<li>
+<p><strong>上下文化词向量时代</strong>（ELMo）：使用双向 LSTM 生成上下文相关的向量，但受限于 RNN 的序列建模能力。</p>
+</li>
+<li>
+<p><strong>Transformer 时代</strong>（BERT, GPT）：通过自注意力机制实现全局上下文建模，每个 Token 的最终表示都是整个序列的函数。</p>
+</li>
+</ol>
+<h3 id="24-positional-encoding">2.4 位置编码（Positional Encoding）</h3>
+<p>Transformer架构的一个核心特征是其对输入序列的处理是并行的（不像RNN那样逐步处理），因此模型本身无法感知Token在序列中的位置。自注意力机制本质上只做向量之间的内积计算，它是<strong>置换不变的（Permutation Invariant）</strong>。如果不加位置信息，模型会将输入的序列视为一个无序的词袋。</p>
+<p>位置编码必须在<strong>嵌入向量之后、第一次进入 Transformer 层之前</strong>注入。</p>
+<h3 id="_8">案例演示：位置编码的逐元素相加</h3>
+<p>使用原始 Transformer 的正弦/余弦位置编码公式：</p>
+<pre class="code-block"><code>PE(pos, 2i)   = sin(pos / 10000^(2i/d_model))
+PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
+</code></pre>
+
+<p>其中：</p>
+<ul>
+<li>
+<p><code>pos</code> 是 Token 在句子中的位置（从 0 开始）。</p>
+</li>
+<li>
+<p><code>i</code> 是维度的索引对。因为我们 <code>d_model=4</code>，所以有 4 个维度，对应 <code>2i</code> (偶数维度 0, 2) 和 <code>2i+1</code> (奇数维度 1, 3)。</p>
+</li>
+<li>当维度是 0 和 1 时，<code>i=0</code>，分母是 <code>10000^(0/4) = 10000^0 = 1</code>。</li>
+<li>当维度是 2 和 3 时，<code>i=1</code>，分母是 <code>10000^(2/4) = 10000^0.5 = 100</code>。</li>
+</ul>
+<p>以 <code>d_model=4</code> 为例，我们一步步计算各位置的编码向量：</p>
+<p><strong>对于 pos=0（第1个词）：</strong></p>
+<ul>
+<li>
+<p>维度0 (偶数, i=0): <code>sin(0 / 1) = sin(0) = 0.000</code></p>
+</li>
+<li>
+<p>维度1 (奇数, i=0): <code>cos(0 / 1) = cos(0) = 1.000</code></p>
+</li>
+<li>
+<p>维度2 (偶数, i=1): <code>sin(0 / 100) = sin(0) = 0.000</code></p>
+</li>
+<li>
+<p>维度3 (奇数, i=1): <code>cos(0 / 100) = cos(0) = 1.000</code></p>
+</li>
+<li>
+<p><strong>PE_0 = [0.000, 1.000, 0.000, 1.000]</strong></p>
+</li>
+</ul>
+<p><strong>对于 pos=1（第2个词）：</strong></p>
+<ul>
+<li>
+<p>维度0: <code>sin(1 / 1) = sin(1) = 0.841</code></p>
+</li>
+<li>
+<p>维度1: <code>cos(1 / 1) = cos(1) = 0.540</code></p>
+</li>
+<li>
+<p>维度2: <code>sin(1 / 100) = sin(0.01) = 0.010</code></p>
+</li>
+<li>
+<p>维度3: <code>cos(1 / 100) = cos(0.01) = 1.000</code></p>
+</li>
+<li>
+<p><strong>PE_1 = [0.841, 0.540, 0.010, 1.000]</strong></p>
+</li>
+</ul>
+<p><strong>对于 pos=2（第3个词）：</strong></p>
+<ul>
+<li>
+<p>维度0: <code>sin(2 / 1) = sin(2) = 0.909</code></p>
+</li>
+<li>
+<p>维度1: <code>cos(2 / 1) = cos(2) = -0.416</code></p>
+</li>
+<li>
+<p>维度2: <code>sin(2 / 100) = sin(0.02) = 0.020</code></p>
+</li>
+<li>
+<p>维度3: <code>cos(2 / 100) = cos(0.02) = 1.000</code></p>
+</li>
+<li>
+<p><strong>PE_2 = [0.909, -0.416, 0.020, 1.000]</strong></p>
+</li>
+</ul>
+<p><strong>逐元素相加得到 Transformer 第一层的真正输入 X</strong>：</p>
+<pre class="code-block"><code>X_&quot;我&quot;   = E_&quot;我&quot; + PE_0
+         = [0.12+0.000, 0.45+1.000, 0.78+0.000, 0.33+1.000]
+         = [0.120, 1.450, 0.780, 1.330]
+
+X_&quot;爱&quot;   = E_&quot;爱&quot; + PE_1
+         = [0.56+0.841, 0.23+0.540, 0.89+0.010, 0.67+1.000]
+         = [1.401, 0.770, 0.900, 1.670]
+
+X_&quot;苹果&quot; = E_&quot;苹果&quot; + PE_2
+         = [0.34+0.909, 0.91-0.416, 0.15+0.020, 0.72+1.000]
+         = [1.249, 0.494, 0.170, 1.720]
+</code></pre>
+
+<h3 id="_9">案例演示：没有位置编码的灾难</h3>
+<p>如果不加位置编码，"我爱苹果"和"苹果爱我"的输入矩阵只是行的顺序不同。而自注意力计算 <code>Attention(Q, K, V) = softmax(Q·Kᵀ/√d_k)·V</code> 中，<code>Q·Kᵀ</code> 的结果是一个对称的相似度矩阵——<strong>交换行的顺序不影响最终每个位置看到的全局信息</strong>。</p>
+<p>加入位置编码后：</p>
+<ul>
+<li>
+<p>"我"在位置 0 时，其向量为 <code>[0.120, 1.450, 0.780, 1.330]</code></p>
+</li>
+<li>
+<p>"我"在位置 2 时（如果句子是"苹果爱我"），其向量为 <code>[0.12+0.909, 0.45-0.416, 0.78+0.020, 0.33+1.000]</code> = <code>[1.029, 0.034, 0.800, 1.330]</code></p>
+</li>
+</ul>
+<p>两者完全不同，模型因此能区分"我"在句首还是句尾。</p>
+<h3 id="rope">扩展：RoPE（旋转位置编码）的工作方式</h3>
+<p>现代模型（如 LLaMA 3）使用 RoPE，不在输入端相加，而是在计算注意力时旋转 Q 和 K：</p>
+<pre class="code-block"><code># 传统绝对位置编码
+X = Embedding + PE          ← 在输入端相加
+Q = X · W_Q
+
+# RoPE 旋转位置编码
+X = Embedding               ← 输入端不加 PE
+Q = X · W_Q
+Q_rotated = RoPE(Q, pos)    ← 在 Q 上应用旋转矩阵
+K_rotated = RoPE(K, pos)    ← 在 K 上应用旋转矩阵
+score = Q_rotated · K_rotated^T  ← 内积自动包含相对距离
+</code></pre>
+
+<p>RoPE 的优势在于：注意力分数只依赖于两个 Token 的<strong>相对距离</strong>，而非绝对位置，因此具有更好的长度外推能力。</p>
+<h3 id="_10">评分要点</h3>
+<ul>
+<li>
+<p>明确指出自注意力机制的置换不变性缺陷，并能用具体数值说明。</p>
+</li>
+<li>
+<p>准确说明位置编码是在嵌入层之后、第一层网络之前注入（逐元素相加）。</p>
+</li>
+<li>
+<p>能够扩展说明 RoPE 等现代位置编码方案的差异与优势。</p>
+</li>
+</ul>
+<hr />
+</div><div class="section" id="s3"><h2>三、 注意力机制与上下文融合：QKV矩阵的作用</h2>
+<p>经过嵌入和位置编码后的向量序列进入Transformer的核心——自注意力机制（Self-Attention）。这是Transformer架构最具革命性的创新，它使得模型中的每个Token都能"看到"并融合序列中所有其他Token的信息，从而理解整个句子的上下文。</p>
+<p><img alt="Self-Attention中QKV的计算过程" src="https://private-us-east-1.manuscdn.com/sessionFile/dBnsgkjHqFZastZQ1wdxqd/sandbox/BoABV9BZJ3zYfXQ9wYoGB6-images_1779800025151_na1fn_L2hvbWUvdWJ1bnR1L2F0dGVudGlvbl9xa3Y.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvZEJuc2drakhxRlphc3RaUTF3ZHhxZC9zYW5kYm94L0JvQUJWOUJaSjN6WWZYUTl3WW9HQjYtaW1hZ2VzXzE3Nzk4MDAwMjUxNTFfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwyRjBkR1Z1ZEdsdmJsOXhhM1kucG5nIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&amp;Key-Pair-Id=K2HSFNDJXOU9YS&amp;Signature=YqME~Y0IUsS4MR6ZB2l-dXbAsvuyCfhnO75wJAujuYKfjtdqMG2T2rokI3tM96ZSH8MRHwQr1wMuqaQgrWfmhOuOjl7syMCFzfbB4sN9NKaCrTQugo9EtrWXZmRV00PkBXTkQvuBy3LGX8ovPwQIf8IWAuBQxZFhTwL1IJIDmWD2tuJXXus6yb8mpOEwlE6Qhx7PdUgy2kjUxI2cOWhFPJfBn2~ou-yy1RxqO8kuHPb59f~c~WM3~8ATnMuanCUPTXOPDcBgedkAsAyxqfvo4rm9MINzxfOiudStI1T3jhyYTa5PcGoD55gXx5I2CbrO7NboGC04zyZ~wmU3wHovDg__" /></p>
+<h3 id="qkv_1">面试题：动态上下文融合（多头注意力与 QKV 机制）</h3>
+<blockquote class="quote">
+<p><strong>题目</strong>：带有位置信息的输入向量进入 Transformer 层后，是如何计算出 Q、K、V 的？为什么我们需要"多头"机制？请用具体数值演示同一个 Token 在不同句子中最终输出向量完全不同的过程。</p>
+</blockquote>
+<h3 id="31-qkv">3.1 Q、K、V 的生成与直觉理解</h3>
+<p>在每一个注意力层中，输入向量 x_i（第 i 个Token的表示）会分别乘以三个不同的可学习权重矩阵 W_Q, W_K, W_V，生成三个新的向量：</p>
+<pre class="code-block"><code>Q_i = x_i · W_Q
+K_i = x_i · W_K
+V_i = x_i · W_V
+</code></pre>
+
+<p>这三个向量各有其明确的语义角色：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>向量</th>
+<th>全称</th>
+<th>直觉类比</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q (Query)</td>
+<td>查询向量</td>
+<td>"我在寻找什么信息？"</td>
+<td>代表当前Token的信息需求</td>
+</tr>
+<tr>
+<td>K (Key)</td>
+<td>键向量</td>
+<td>"我能提供什么信息？"</td>
+<td>代表当前Token的信息标签</td>
+</tr>
+<tr>
+<td>V (Value)</td>
+<td>值向量</td>
+<td>"我实际包含什么内容？"</td>
+<td>代表当前Token要传递的实质信息</td>
+</tr>
+</tbody>
+</table></div>
+<p>一个形象的类比是图书馆检索系统：你带着一个问题（Query）去图书馆，每本书的标题和关键词是Key，书的内容是Value。你用你的问题与每本书的关键词进行匹配（Q与K的点积），匹配度越高的书（注意力分数越大），你就越多地阅读其内容（对V的加权越大）。</p>
+<h3 id="32">3.2 注意力分数的计算</h3>
+<p>注意力机制的完整计算公式为：</p>
+<pre class="code-block"><code>Attention(Q, K, V) = softmax(Q · Kᵀ / √d_k) · V
+</code></pre>
+
+<p>这个公式可以分解为以下步骤：</p>
+<p><strong>步骤一：计算原始注意力分数。</strong> 将当前Token的Q向量与序列中所有Token的K向量进行点积运算。点积的结果是一个标量，表示两个Token之间的"相关性"或"匹配度"。</p>
+<p><strong>步骤二：缩放（Scaling）。</strong> 将点积结果除以 √d_k（其中 d_k 是Key向量的维度）。这一步是为了防止在维度较大时，点积值过大导致Softmax函数进入梯度极小的饱和区域。</p>
+<p><strong>步骤三：因果掩码（Causal Mask）。</strong> 在自回归生成模型（如GPT）中，模型在预测第 t 个Token时，不应该看到第 t 个位置之后的Token。因此，需要将未来位置的注意力分数设为负无穷（-∞），使其经过Softmax后变为0。</p>
+<p><strong>步骤四：Softmax归一化。</strong> 将缩放后的分数通过Softmax函数转换为概率分布（所有分数之和为1），得到注意力权重。</p>
+<p><strong>步骤五：加权求和。</strong> 将注意力权重与对应的V向量进行加权求和，得到当前Token融合了上下文信息后的新表示。</p>
+<h3 id="qkv_2">案例演示：完整的 QKV 计算与注意力过程</h3>
+<p>继续使用统一案例。上一步得到的输入向量（含位置编码）为：</p>
+<pre class="code-block"><code>X_&quot;我&quot;   = [0.120, 1.450, 0.780, 1.330]
+X_&quot;爱&quot;   = [1.401, 0.770, 0.900, 1.670]
+X_&quot;苹果&quot; = [1.249, 0.494, 0.170, 1.720]
+</code></pre>
+
+<p>模型有 2 个头，每头维度 <code>d_head=2</code>。以<strong>头 0</strong> 为例，其权重矩阵（形状 <code>[4, 2]</code>）：</p>
+<pre class="code-block"><code>W_Q0 = [[0.1, 0.3],    W_K0 = [[0.2, 0.1],    W_V0 = [[0.4, 0.2],
+         [0.2, 0.4],             [0.3, 0.2],             [0.1, 0.3],
+         [0.5, 0.1],             [0.1, 0.4],             [0.3, 0.5],
+         [0.3, 0.2]]            [0.4, 0.3]]            [0.2, 0.1]]
+</code></pre>
+
+<p><strong>计算"苹果"（位置 2）的 Q、K、V（头 0）</strong>：</p>
+<pre class="code-block"><code>Q_苹果 = X_苹果 · W_Q0
+       = [1.249, 0.494, 0.170, 1.720] · [[0.1,0.3],[0.2,0.4],[0.5,0.1],[0.3,0.2]]
+       Q[0] = 1.249×0.1 + 0.494×0.2 + 0.170×0.5 + 1.720×0.3
+            = 0.125 + 0.099 + 0.085 + 0.516 = 0.825
+       Q[1] = 1.249×0.3 + 0.494×0.4 + 0.170×0.1 + 1.720×0.2
+            = 0.375 + 0.198 + 0.017 + 0.344 = 0.934
+       Q_苹果 = [0.825, 0.934]
+</code></pre>
+
+<p>同理计算所有 Token 的 K 和 V：</p>
+<pre class="code-block"><code>K_我   = X_我 · W_K0 = [0.120×0.2+1.450×0.3+0.780×0.1+1.330×0.4, ...]
+       = [0.024+0.435+0.078+0.532, 0.012+0.290+0.312+0.399]
+       = [1.069, 1.013]
+
+K_爱   = X_爱 · W_K0 = [1.401×0.2+0.770×0.3+0.900×0.1+1.670×0.4, ...]
+       = [0.280+0.231+0.090+0.668, 0.140+0.154+0.360+0.501]
+       = [1.269, 1.155]
+
+K_苹果 = X_苹果 · W_K0 = [1.249×0.2+0.494×0.3+0.170×0.1+1.720×0.4, ...]
+       = [0.250+0.148+0.017+0.688, 0.125+0.099+0.068+0.516]
+       = [1.103, 0.808]
+</code></pre>
+
+<p><strong>计算注意力分数（"苹果"对所有 Token 的关注度）</strong>：</p>
+<pre class="code-block"><code>score(苹果→我)   = Q_苹果 · K_我^T / √d_head
+                 = (0.825×1.069 + 0.934×1.013) / √2
+                 = (0.882 + 0.946) / 1.414
+                 = 1.828 / 1.414 = 1.293
+
+score(苹果→爱)   = Q_苹果 · K_爱^T / √2
+                 = (0.825×1.269 + 0.934×1.155) / 1.414
+                 = (1.047 + 1.079) / 1.414
+                 = 2.126 / 1.414 = 1.503
+
+score(苹果→苹果) = Q_苹果 · K_苹果^T / √2
+                 = (0.825×1.103 + 0.934×0.808) / 1.414
+                 = (0.910 + 0.755) / 1.414
+                 = 1.665 / 1.414 = 1.177
+</code></pre>
+
+<p><strong>Softmax 归一化得到注意力权重</strong>：</p>
+<pre class="code-block"><code>exp(1.293) = 3.644
+exp(1.503) = 4.495
+exp(1.177) = 3.245
+总和 = 11.384
+
+weight(苹果→我)   = 3.644 / 11.384 = 0.320
+weight(苹果→爱)   = 4.495 / 11.384 = 0.395  ← &quot;爱&quot;获得最高权重
+weight(苹果→苹果) = 3.245 / 11.384 = 0.285
+</code></pre>
+
+<p><strong>加权求和 V 得到"苹果"的注意力输出</strong>：</p>
+<p>假设计算得到的 V 向量为：</p>
+<pre class="code-block"><code>V_我   = [0.52, 0.81]
+V_爱   = [0.93, 1.12]
+V_苹果 = [0.67, 0.58]
+</code></pre>
+
+<pre class="code-block"><code>Attn_苹果 = 0.320×V_我 + 0.395×V_爱 + 0.285×V_苹果
+          = 0.320×[0.52,0.81] + 0.395×[0.93,1.12] + 0.285×[0.67,0.58]
+          = [0.166,0.259] + [0.367,0.442] + [0.191,0.165]
+          = [0.724, 0.866]
+</code></pre>
+
+<h3 id="33-multi-head-attention">3.3 多头注意力（Multi-Head Attention）</h3>
+<p>在实际实现中，模型不会只使用一组QKV，而是将嵌入维度拆分为多个"头"（Head），每个头独立进行注意力计算。例如，如果嵌入维度为4096，使用32个头，则每个头的维度为128。</p>
+<p>多头注意力的意义在于：不同的头可以关注不同类型的语言关系。例如，某些头可能专注于捕捉语法结构（主语-谓语关系），另一些头可能关注语义关联（同义词、反义词），还有一些头可能关注长距离依赖关系。</p>
+<h3 id="_11">案例演示：多头的分工</h3>
+<p>在上面的计算中，我们只展示了头 0。头 1 使用不同的 W_Q, W_K, W_V，可能学到完全不同的注意力模式：</p>
+<pre class="code-block"><code>头 0 的注意力权重（&quot;苹果&quot;视角）:
+  我: 0.320, 爱: 0.395, 苹果: 0.285
+  → 头0 主要关注&quot;爱&quot;（动词-宾语关系）
+
+头 1 的注意力权重（&quot;苹果&quot;视角，假设）:
+  我: 0.55, 爱: 0.20, 苹果: 0.25
+  → 头1 主要关注&quot;我&quot;（施事者-受事者关系）
+</code></pre>
+
+<p>最终将两个头的输出拼接：<code>Concat([0.724, 0.866], [0.513, 0.742]) = [0.724, 0.866, 0.513, 0.742]</code>，再经过线性变换 W_O（形状 <code>[4, 4]</code>）得到最终的 4 维输出向量。</p>
+<h3 id="token">案例演示：同一 Token 在不同句子中的动态差异</h3>
+<p>现在对比"苹果"在两个不同句子中的注意力输出：</p>
+<p><strong>句子 A："我 爱 苹果"</strong>（水果语境）</p>
+<ul>
+<li>
+<p>"苹果"的 Q 与"爱"的 K 匹配度最高（权重 0.395）</p>
+</li>
+<li>
+<p>输出融合了大量"爱"的语义 → 偏向"被喜爱的食物"</p>
+</li>
+</ul>
+<p><strong>句子 B："苹果 手机 很 贵"</strong>（品牌语境）</p>
+<ul>
+<li>
+<p>"苹果"的 Q 与"手机"的 K 匹配度最高（假设权重 0.42）</p>
+</li>
+<li>
+<p>"苹果"的 Q 与"贵"的 K 也有较高匹配（假设权重 0.28）</p>
+</li>
+<li>
+<p>输出融合了"手机"和"贵"的语义 → 偏向"昂贵的电子品牌"</p>
+</li>
+</ul>
+<p><strong>结论</strong>：虽然两个句子中"苹果"的初始嵌入向量 <code>[0.34, 0.91, 0.15, 0.72]</code> 完全相同，但经过注意力加权求和后，输出向量截然不同。经过 12~96 层的反复融合，最终向量已经是<strong>整个句子上下文语义的函数</strong>。</p>
+<h3 id="34-residual-connection">3.4 残差连接（Residual Connection）</h3>
+<p>残差连接是深度网络中最重要的架构创新之一，最早由 ResNet 提出。其核心思想极其简单：<strong>将子层的输入直接加到子层的输出上</strong>。数学表示为：</p>
+<pre class="code-block"><code>output = x + SubLayer(x)
+</code></pre>
+
+<p>其中 x 是子层的输入，SubLayer(x) 是子层（注意力或 FFN）的输出。</p>
+<p><strong>为什么需要残差连接？</strong></p>
+<ol>
+<li>
+<p><strong>解决梯度消失问题</strong>：在反向传播时，梯度可以通过残差连接的"捷径"直接流向更浅的层，避免了经过多层变换后梯度逐渐衰减至零的问题。这使得训练 32 层乃至 100+ 层的深度网络成为可能。</p>
+</li>
+<li>
+<p><strong>保留原始信息</strong>：即使子层的输出接近零（初始化时常见），整体输出仍然保留了输入信息。这意味着模型在初始阶段近似于恒等函数，随着训练逐步学习"残差"（即需要补充的信息）。</p>
+</li>
+<li>
+<p><strong>信息高速公路</strong>：可以将残差连接理解为一条"残差流"（Residual Stream），信息沿着这条流从输入层一直流向输出层，每一层的注意力和 FFN 只是在这条流上"读取"和"写入"信息。</p>
+</li>
+</ol>
+<h3 id="_12">案例演示：残差连接的数值计算</h3>
+<p>继续统一案例。假设"苹果"的输入向量（进入注意力层前）为：</p>
+<pre class="code-block"><code>x_苹果 = [1.249, 0.494, 0.170, 1.720]  (含位置编码的输入)
+</code></pre>
+
+<p>多头注意力层的输出（经过 W_O 投影后）为：</p>
+<pre class="code-block"><code>Attn_output_苹果 = [0.312, -0.156, 0.478, 0.095]
+</code></pre>
+
+<p><strong>残差连接操作：直接相加</strong></p>
+<pre class="code-block"><code>residual_1 = x_苹果 + Attn_output_苹果
+           = [1.249+0.312, 0.494+(-0.156), 0.170+0.478, 1.720+0.095]
+           = [1.561, 0.338, 0.648, 1.815]
+</code></pre>
+
+<p>可以看到，即使注意力层的输出值较小，原始输入信息仍然被完整保留在结果中。</p>
+<h3 id="35-layer-normalization">3.5 层归一化（Layer Normalization）</h3>
+<p>层归一化是 Transformer 中另一个不可或缺的组件。它的作用是将向量的各维度数值归一化到稳定的范围，防止随着层数加深而出现数值爆炸或消失。</p>
+<p><strong>层归一化的数学公式：</strong></p>
+<pre class="code-block"><code>LayerNorm(x) = γ · (x - μ) / √(σ² + ε) + β
+</code></pre>
+
+<p>其中：</p>
+<ul>
+<li>
+<p>μ 是向量 x 各维度的均值</p>
+</li>
+<li>
+<p>σ² 是向量 x 各维度的方差</p>
+</li>
+<li>
+<p>γ 和 β 是可学习的缩放和偏移参数</p>
+</li>
+<li>
+<p>ε 是一个很小的常数（如 10⁻⁵），防止除零</p>
+</li>
+</ul>
+<p><strong>Pre-Norm vs. Post-Norm：</strong></p>
+<p>现代 LLM（如 LLaMA, GPT-3+）普遍采用 <strong>Pre-Norm</strong>（归一化在子层之前），而非原始 Transformer 的 Post-Norm（归一化在子层之后）：</p>
+<pre class="code-block"><code>Post-Norm (原始 Transformer):
+  output = LayerNorm(x + SubLayer(x))
+
+Pre-Norm (现代 LLM):
+  output = x + SubLayer(LayerNorm(x))
+</code></pre>
+
+<p>Pre-Norm 的优势在于残差流不经过归一化，梯度可以更顺畅地流动，训练更加稳定。</p>
+<h3 id="_13">案例演示：层归一化的逐步计算</h3>
+<p>对残差连接后的向量进行层归一化（假设 γ = [1] [1] [1] [1], β = [0] [0] [0] [0]，即不缩放不偏移）：</p>
+<pre class="code-block"><code>输入: residual_1 = [1.561, 0.338, 0.648, 1.815]
+
+Step 1 — 计算均值:
+  μ = (1.561 + 0.338 + 0.648 + 1.815) / 4 = 4.362 / 4 = 1.091
+
+Step 2 — 计算方差:
+  σ² = [(1.561-1.091)² + (0.338-1.091)² + (0.648-1.091)² + (1.815-1.091)²] / 4
+     = [0.221 + 0.567 + 0.196 + 0.524] / 4
+     = 1.508 / 4 = 0.377
+
+Step 3 — 归一化:
+  σ = √0.377 = 0.614
+  norm[0] = (1.561 - 1.091) / 0.614 = 0.470 / 0.614 =  0.766
+  norm[1] = (0.338 - 1.091) / 0.614 = -0.753 / 0.614 = -1.226
+  norm[2] = (0.648 - 1.091) / 0.614 = -0.443 / 0.614 = -0.721
+  norm[3] = (1.815 - 1.091) / 0.614 = 0.724 / 0.614 =  1.179
+
+输出: LN_output = [0.766, -1.226, -0.721, 1.179]
+</code></pre>
+
+<p>可以验证，归一化后的向量均值接近 0，方差接近 1，这保证了后续计算的数值稳定性。</p>
+<h3 id="36-ffn">3.6 前馈网络（FFN）</h3>
+<p>在注意力层和层归一化之后，每个 Token 的向量还会经过一个前馈神经网络（Feed-Forward Network, FFN）。FFN 对每个 Token <strong>独立地</strong>进行非线性变换，进一步提炼和转化注意力层捕获的特征。</p>
+<p><strong>FFN 的结构：</strong></p>
+<pre class="code-block"><code>FFN(x) = W2 · Activation(W1 · x + b1) + b2
+</code></pre>
+
+<p>其中 W1 将向量从 d_model 维扩展到 d_ff（通常是 d_model 的 4 倍），然后 W2 再压缩回 d_model 维。这种"扩展-激活-压缩"的结构赋予了模型强大的非线性表达能力。</p>
+<p>现代 LLM 常用 <strong>SwiGLU</strong> 激活函数（LLaMA, Qwen 等），它结合了门控机制和 Swish 激活：</p>
+<pre class="code-block"><code>SwiGLU(x) = (W1 · x) ⊙ σ(W_gate · x)
+</code></pre>
+
+<p>其中 ⊙ 表示逐元素乘法，σ 是 Swish 激活函数。</p>
+<p><strong>FFN 的直觉理解：</strong> 如果说注意力层的作用是"在 Token 之间交换信息"，那么 FFN 的作用就是"在每个 Token 内部进行深度加工"。研究表明，FFN 层实际上充当了一种"键值记忆"（Key-Value Memory），存储了模型在训练中学到的事实知识。</p>
+<h3 id="ffn-swiglu">案例演示：FFN (SwiGLU) 的数值计算</h3>
+<p>现代大模型（如 LLaMA）使用 SwiGLU 结构。为了详细展示计算过程，我们假设它把 4 维扩展到 6 维，再压缩回 4 维。</p>
+<pre class="code-block"><code>输入: LN_output = [0.766, -1.226, -0.721, 1.179]
+</code></pre>
+
+<p><strong>步骤 1：两路线性变换（4维 → 6维）</strong>输入向量分别乘以两个不同的权重矩阵 <code>W_gate</code> 和 <code>W_up</code>。</p>
+<pre class="code-block"><code>门控路（Gate）: x_gate = LN_output · W_gate = [2.10, -1.50, 0.80, 3.20, -0.40, 1.10]
+升维路（Up）:   x_up   = LN_output · W_up   = [0.50, 1.20, -0.90, 2.00, 1.50, -0.20]
+</code></pre>
+
+<p><strong>步骤 2：Swish 激活函数</strong>公式是 <code>x * sigmoid(x)</code>。简单理解就是：正数放大，负数被压制到接近0。我们计算门控路 <code>x_gate</code> 的激活结果。以第一个数 2.10 为例：<code>sigmoid(2.10) = 1 / (1 + exp(-2.10)) = 0.891``Swish(2.10) = 2.10 * 0.891 = 1.871</code></p>
+<p>以第二个数 -1.50 为例：<code>sigmoid(-1.50) = 1 / (1 + exp(1.50)) = 0.182``Swish(-1.50) = -1.50 * 0.182 = -0.273</code></p>
+<p>对6个维度全部计算：</p>
+<pre class="code-block"><code>Swish(x_gate) = [1.871, -0.273, 0.552, 3.080, -0.160, 0.825]
+</code></pre>
+
+<p><strong>步骤 3：两路相乘（GLU 机制）</strong>用激活后的门控路，去控制升维路（逐元素相乘）。这就好像门控路决定了升维路里的哪些特征能通过，哪些被拦截：</p>
+<pre class="code-block"><code>Middle = Swish(x_gate) × x_up
+       = [1.871×0.50, -0.273×1.20, 0.552×-0.90, 3.080×2.00, -0.160×1.50, 0.825×-0.20]
+       = [0.936, -0.328, -0.497, 6.160, -0.240, -0.165]
+</code></pre>
+
+<p><strong>步骤 4：降维（Down，6维 → 4维）</strong>乘以 <code>W_down</code> 矩阵，把 6 维压回 4 维：</p>
+<pre class="code-block"><code>FFN_output = Middle · W_down = [0.415, 0.287, -0.193, 0.562]
+</code></pre>
+
+<h3 id="37-transformer-block">3.7 完整的 Transformer Block 数据流</h3>
+<p>现在我们可以把一个完整的 Transformer Block 的数据流串联起来（以 Pre-Norm 架构为例）：</p>
+
+<style>
+.diagram-container {
+  margin: 1.5em 0;
+  padding: 1.5em;
+  background: #1a1f2e;
+  border-radius: 12px;
+  border: 1px solid #2d3748;
+  overflow-x: auto;
+}
+.diagram-container .flow-node {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  min-width: 80px;
+}
+.diagram-container .flow-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f0c040;
+  font-size: 20px;
+  padding: 4px 0;
+}
+.diagram-container .flow-arrow-h {
+  display: inline-flex;
+  align-items: center;
+  color: #f0c040;
+  font-size: 20px;
+  padding: 0 8px;
+}
+.diagram-container .section-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #2d3748;
+}
+.diagram-container .data-label {
+  font-size: 12px;
+  color: #a0aec0;
+  margin-top: 4px;
+}
+.diagram-container .compare-grid {
+  display: grid;
+  gap: 16px;
+}
+.diagram-container .compare-section {
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid;
+}
+.diagram-container .layer-stack .layer-item {
+  padding: 12px 16px;
+  margin: 4px 0;
+  border-radius: 6px;
+  border: 1px solid;
+  font-size: 13px;
+  text-align: center;
+}
+.diagram-container .memory-bar {
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  margin: 6px 0;
+}
+.diagram-container .memory-bar .used {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+.diagram-container .memory-bar .unused {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex: 1;
+}
+.diagram-container .block-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 4px;
+  margin: 8px 0;
+}
+.diagram-container .block-cell {
+  padding: 8px 4px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 11px;
+  border: 1px solid;
+}
+.diagram-container .storage-tier {
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid;
+  margin: 8px 0;
+}
+.diagram-container .user-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.diagram-container .user-card {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid;
+  font-size: 11px;
+  text-align: center;
+}
+</style>
+<div class="diagram-container">
+  <div class="section-title" style="color: #00d4ff;">Transformer Block 内部数据流（Pre-Norm 架构）</div>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 0;">
+    <div class="flow-node" style="background: #1a2a3a; border: 1px solid #00d4ff; color: #e2e8f0;">
+      输入 x = [1.249, 0.494, 0.170, 1.720]<br><span style="color:#a0aec0;font-size:11px;">"苹果"的含位置编码向量</span>
+    </div>
+    <div style="display: flex; align-items: stretch; margin: 0;">
+      <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node" style="background: #1a3a2a; border: 1px solid #48bb78; color: #e2e8f0;">LayerNorm</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node" style="background: #2a1a3a; border: 1px solid #9f7aea; color: #e2e8f0;">Multi-Head Attention<br><span class="data-label">output = [0.312, -0.156, 0.478, 0.095]</span></div>
+        <div class="flow-arrow">↓</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 16px;">
+        <div style="border-left: 2px dashed #f0c040; height: 100%; position: relative;">
+          <span style="position: absolute; top: 50%; left: 8px; transform: translateY(-50%); color: #f0c040; font-size: 11px; white-space: nowrap;">残差路径</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-node" style="background: #2a2010; border: 1px solid #f0c040; color: #f0c040; width: 100%; max-width: 400px;">
+      Add（残差连接）<br><span class="data-label" style="color:#e2e8f0;">residual_1 = [1.561, 0.338, 0.648, 1.815]</span>
+    </div>
+    <div style="display: flex; align-items: stretch; margin: 0;">
+      <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node" style="background: #1a3a2a; border: 1px solid #48bb78; color: #e2e8f0;">LayerNorm<br><span class="data-label">output = [0.766, -1.226, -0.721, 1.179]</span></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node" style="background: #3a1a2a; border: 1px solid #ed64a6; color: #e2e8f0;">FFN<br><span class="data-label">output = [0.415, 0.287, -0.193, 0.562]</span></div>
+        <div class="flow-arrow">↓</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 16px;">
+        <div style="border-left: 2px dashed #f0c040; height: 100%; position: relative;">
+          <span style="position: absolute; top: 50%; left: 8px; transform: translateY(-50%); color: #f0c040; font-size: 11px; white-space: nowrap;">残差路径</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-node" style="background: #2a2010; border: 1px solid #f0c040; color: #f0c040; width: 100%; max-width: 400px;">
+      Add（残差连接）<br><span class="data-label" style="color:#e2e8f0;">residual_2 = [1.976, 0.625, 0.455, 2.377]</span>
+    </div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node" style="background: #1a2a3a; border: 1px solid #00d4ff; color: #00d4ff;">
+      输出（传入下一层 Transformer Block，或作为最终隐藏状态）
+    </div>
+  </div>
+</div>
+
+<p>整个 Transformer Block（LayerNorm + 注意力 + 残差 + LayerNorm + FFN + 残差）会被堆叠多次（例如，LLaMA-7B 有 32 层，GPT-4 据推测有超过 100 层），每一层都在前一层的基础上进一步提炼和丰富 Token 的表示。经过所有层后，最后一层的输出再经过一次最终的 LayerNorm，得到最终隐藏状态，传入 LM Head 进行预测。</p>
+<p><strong>残差流视角的理解：</strong></p>
+<p>从整体看，经过 N 层 Transformer 后，最终输出可以表示为：</p>
+<pre class="code-block"><code>h_final = x_0 + ∑(Attn_l, l=1..N) + ∑(FFN_l, l=1..N)
+</code></pre>
+
+<p>即最终的隐藏状态是原始输入加上所有层的注意力贡献和 FFN 贡献的总和。这就是为什么 LM Head 能够直接对最终隐藏状态进行预测——它包含了从输入嵌入到所有层处理结果的完整信息。这也解释了为什么 LM Head 可以与嵌入矩阵共享权重（Weight Tying）：嵌入矩阵将 Token 映射为向量，而 LM Head（即嵌入矩阵的转置）将最终向量映射回 Token 空间，两者在语义上是互逆的操作。</p>
+<h3 id="_14">评分要点</h3>
+<ul>
+<li>
+<p>能够手动演示 Q·K 点积 → Softmax → 加权 V 的完整计算过程。</p>
+</li>
+<li>
+<p>解释多头机制是为了并行捕获多维度的语义/句法关系。</p>
+</li>
+<li>
+<p>用具体数值说明同一 Token 在不同上下文中注意力权重的差异导致输出不同。</p>
+</li>
+<li>
+<p>详细解释残差连接解决梯度消失的机制，并能给出数值示例。</p>
+</li>
+<li>
+<p>手动演示 LayerNorm 的均值/方差/归一化计算过程。</p>
+</li>
+<li>
+<p>区分 Pre-Norm 和 Post-Norm 的差异及各自优势。</p>
+</li>
+</ul>
+<hr />
+</div><div class="section" id="s4"><h2>四、 加速推理的利器：KV Cache</h2>
+<p>大语言模型在生成文本时采用的是<strong>自回归（Autoregressive）</strong>方式，即每次只预测并生成一个Token，然后将这个Token追加到输入序列中，再预测下一个Token，循环往复。在没有优化的情况下，每生成一个新Token，模型都需要对之前所有Token重新计算一遍K和V向量，这会导致巨大的重复计算。</p>
+<p><img alt="KV Cache工作机制时序图" src="https://private-us-east-1.manuscdn.com/sessionFile/dBnsgkjHqFZastZQ1wdxqd/sandbox/BoABV9BZJ3zYfXQ9wYoGB6-images_1779800025151_na1fn_L2hvbWUvdWJ1bnR1L2t2X2NhY2hl.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvZEJuc2drakhxRlphc3RaUTF3ZHhxZC9zYW5kYm94L0JvQUJWOUJaSjN6WWZYUTl3WW9HQjYtaW1hZ2VzXzE3Nzk4MDAwMjUxNTFfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwydDJYMk5oWTJobC5wbmciLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&amp;Key-Pair-Id=K2HSFNDJXOU9YS&amp;Signature=KGjjOG-sOqA4CNz0TG600azAPjN2kBpvfIB3PuiSEplI2FWFUymXM9kJTQUeWUFGvbuFmG9BmxxBJklf69r1fq0BcDUg5q1NyI6yKtwQmv7~~iqCiwYyAGSNo7iLHhpguz7dOfCiSYLzDixXshsJlzNk1Us~uGZps07xmHnSAUHHfAQXpcrfjmmVxx6WbaD7AkhFX94NVPNedez9T8gE7nzJdI53OZkqaJ~QwYHsissKNE5avBUo9MBXGvif5psQdWzrcYHLxvRH9C4rUrhG5Qx0eD0b1TW2QuBFGY~8a1dcOnmuoE9SXgKRruha-1cQigAbYEYgiLW7eEm2qs9YpQ__" /></p>
+<h3 id="kv-cache_1">面试题：推理加速核心（KV Cache 机制的设计原理）</h3>
+<blockquote class="quote">
+<p><strong>题目</strong>：在自回归生成新 Token 时，KV Cache 是如何工作的？为什么我们在缓存中只保存历史 Token 的 K 和 V，而不保存 Q？请用具体的生成步骤演示。</p>
+</blockquote>
+<h3 id="41-kv-cache">4.1 为什么需要KV Cache</h3>
+<p>考虑一个具体的例子：当模型已经生成了 "今天天气很好" 这6个Token，现在要预测第7个Token时：</p>
+<p><strong>不使用KV Cache：</strong> 模型需要将完整的6个Token序列输入，重新计算每个Token的Q、K、V向量，然后计算注意力，最后预测第7个Token。当生成第8个Token时，又要对7个Token全部重新计算。随着序列变长，计算量呈二次方增长。</p>
+<p><strong>使用KV Cache：</strong> 模型只需要计算第7个Token（最新生成的那个）的Q、K、V向量，然后从缓存中取出前6个Token已经计算好的K和V向量，直接进行注意力计算。这将每一步的 QKV 投影计算量从 O(n) 降低到 O(1)（仅计算一个新Token的投影）。</p>
+<h3 id="42-kv-cache">4.2 KV Cache 的工作原理</h3>
+<p>KV Cache的工作分为两个阶段：</p>
+<p><strong>Prefill阶段（预填充）：</strong> 当用户输入一段提示词（Prompt）时，模型一次性处理所有输入Token，计算每个Token的K和V向量，并将它们存入KV Cache。同时，模型也会计算Q向量并执行注意力计算，预测出第一个输出Token。</p>
+<h4 id="prefill-token">Prefill 的并行本质：为什么能一次性处理所有 Token？</h4>
+<p>这是理解 Transformer 架构优势的关键。Prefill 阶段的核心操作是<strong>矩阵乘法</strong>，而矩阵乘法天然支持并行——所有 Token 的 Q、K、V 是<strong>同时</strong>计算出来的，不是一个接一个。</p>
+<p><strong>具体计算过程（三步）：</strong></p>
+<pre class="code-block"><code>第 1 步：输入嵌入 — 将所有 Token 排成一个矩阵
+
+假设输入 Prompt 有 L 个 Token，每个 Token 的嵌入维度为 d_model。
+经过 Embedding 查表后，我们得到一个 [L × d_model] 的输入矩阵 X：
+
+  X = [ Token_1 的嵌入向量 ]     形状：[L, d_model]
+      [ Token_2 的嵌入向量 ]     例如 L=6, d_model=4096
+      [ Token_3 的嵌入向量 ]     → X 是一个 [6, 4096] 的矩阵
+      [ ...                ]
+      [ Token_L 的嵌入向量 ]
+
+
+第 2 步：并行计算 Q、K、V — 一次矩阵乘法搞定所有 Token
+
+模型有三个可学习的权重矩阵 W_Q、W_K、W_V，形状都是 [d_model, d_k]。
+
+  Q = X × W_Q    →  [L, d_model] × [d_model, d_k] = [L, d_k]
+  K = X × W_K    →  [L, d_model] × [d_model, d_k] = [L, d_k]
+  V = X × W_V    →  [L, d_model] × [d_model, d_v] = [L, d_v]
+
+关键理解：这三个矩阵乘法中，X 的每一行（每个 Token）是独立参与计算的。
+          GPU 有数千个计算核心，可以同时处理所有行。
+          所以 L 个 Token 的 QKV 是「同时」算出来的，不是排队算的！
+
+
+第 3 步：并行计算注意力 — 所有位置同时互相关注
+
+  注意力分数 = Q × K^T    →  [L, d_k] × [d_k, L] = [L, L]
+
+  这个 [L, L] 矩阵的含义：
+    第 i 行第 j 列 = 第 i 个 Token 对第 j 个 Token 的关注度
+    所有 L×L 个关注度是同时算出来的！
+
+  然后：
+    应用因果掩码（上三角设为 -∞）
+    → 每行做 Softmax
+    → 乘以 V 矩阵得到输出
+
+  最终取最后一行（第 L 个 Token 的输出向量）→ 预测第一个新 Token
+</code></pre>
+
+<h4 id="rnn-vs">与 RNN 的根本区别：并行 vs 串行</h4>
+<p>这正是 Transformer 架构相比 RNN（循环神经网络）的<strong>根本性优势</strong>。</p>
+<div class="diagram-container">
+  <div class="compare-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="compare-section" style="border-color: #fc8181; background: #1a1a2e;">
+      <div class="section-title" style="color: #fc8181;">RNN 处理方式（串行）</div>
+      <p style="color:#a0aec0;font-size:12px;margin:0 0 12px;">输入："中国 的 首都 在 哪里 ？"</p>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="padding:8px 12px;background:#2a1a1a;border-left:3px solid #fc8181;border-radius:4px;color:#e2e8f0;font-size:12px;">时刻1：处理"中国" → h1</div>
+        <div style="padding:8px 12px;background:#2a1a1a;border-left:3px solid #fc8181;border-radius:4px;color:#e2e8f0;font-size:12px;">时刻2：处理"的" → 需要 h1 才能算 h2 <span style="color:#fc8181;">⚠ 必须等待</span></div>
+        <div style="padding:8px 12px;background:#2a1a1a;border-left:3px solid #fc8181;border-radius:4px;color:#e2e8f0;font-size:12px;">时刻3：处理"首都" → 需要 h2 才能算 h3 <span style="color:#fc8181;">⚠ 必须等待</span></div>
+        <div style="padding:8px 12px;background:#2a1a1a;border-left:3px solid #fc8181;border-radius:4px;color:#e2e8f0;font-size:12px;">时刻4：处理"在" → 需要 h3 才能算 h4 <span style="color:#fc8181;">⚠ 必须等待</span></div>
+        <div style="padding:8px 12px;background:#2a1a1a;border-left:3px solid #fc8181;border-radius:4px;color:#e2e8f0;font-size:12px;">时刻5：处理"哪里" → 需要 h4 才能算 h5 <span style="color:#fc8181;">⚠ 必须等待</span></div>
+        <div style="padding:8px 12px;background:#2a1a1a;border-left:3px solid #fc8181;border-radius:4px;color:#e2e8f0;font-size:12px;">时刻6：处理"？" → 需要 h5 才能算 h6 <span style="color:#fc8181;">⚠ 必须等待</span></div>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:#1a0a0a;border-radius:6px;font-size:12px;">
+        <div style="color:#fc8181;font-weight:bold;">总耗时：6 个时间步（串行）</div>
+        <div style="color:#a0aec0;margin-top:4px;">瓶颈：每步依赖上一步输出，GPU 大部分核心闲置</div>
+        <div style="color:#a0aec0;margin-top:4px;">公式：h_t = f(W_h × h_{t-1} + W_x × x_t)</div>
+      </div>
+    </div>
+    <div class="compare-section" style="border-color: #48bb78; background: #1a1a2e;">
+      <div class="section-title" style="color: #48bb78;">Transformer 处理方式（并行）</div>
+      <p style="color:#a0aec0;font-size:12px;margin:0 0 12px;">输入："中国 的 首都 在 哪里 ？"</p>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="padding:10px 12px;background:#1a2a1a;border:1px solid #48bb78;border-radius:6px;color:#e2e8f0;font-size:12px;">
+          <div style="font-weight:bold;color:#48bb78;margin-bottom:6px;">时刻1：同时处理所有 6 个 Token！</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            <span style="padding:2px 8px;background:#2a3a2a;border-radius:3px;font-size:11px;">"中国"</span>
+            <span style="padding:2px 8px;background:#2a3a2a;border-radius:3px;font-size:11px;">"的"</span>
+            <span style="padding:2px 8px;background:#2a3a2a;border-radius:3px;font-size:11px;">"首都"</span>
+            <span style="padding:2px 8px;background:#2a3a2a;border-radius:3px;font-size:11px;">"在"</span>
+            <span style="padding:2px 8px;background:#2a3a2a;border-radius:3px;font-size:11px;">"哪里"</span>
+            <span style="padding:2px 8px;background:#2a3a2a;border-radius:3px;font-size:11px;">"？"</span>
+          </div>
+          <div style="color:#48bb78;margin-top:6px;">→ 一次矩阵乘法得到 6 个 Q、6 个 K、6 个 V</div>
+        </div>
+        <div style="padding:8px 12px;background:#1a2a1a;border-left:3px solid #48bb78;border-radius:4px;color:#e2e8f0;font-size:12px;">时刻2：所有 Token 同时互相计算注意力（Q×K^T）</div>
+        <div style="padding:8px 12px;background:#1a2a1a;border-left:3px solid #48bb78;border-radius:4px;color:#e2e8f0;font-size:12px;">时刻3：同时得到所有位置的输出</div>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:#0a1a0a;border-radius:6px;font-size:12px;">
+        <div style="color:#48bb78;font-weight:bold;">总耗时：约 3 个时间步（与序列长度几乎无关！）</div>
+        <div style="color:#a0aec0;margin-top:4px;">优势：GPU 所有核心满载，充分利用并行能力</div>
+        <div style="color:#a0aec0;margin-top:4px;">公式：Q, K, V = X × W_Q, X × W_K, X × W_V</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p><strong>速度对比（实际数据）：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>RNN (LSTM)</th>
+<th>Transformer (Prefill)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>处理 1000 个 Token</td>
+<td>1000 个时间步（串行）</td>
+<td>~1 个时间步（并行矩阵乘法）</td>
+</tr>
+<tr>
+<td>GPU 利用率</td>
+<td>10%~30%（大部分核心闲置）</td>
+<td>80%~95%（几乎满载）</td>
+</tr>
+<tr>
+<td>序列长度对速度的影响</td>
+<td>线性增长（长度翻倍，时间翻倍）</td>
+<td>近似常数（长度翻倍，时间几乎不变）</td>
+</tr>
+<tr>
+<td>长距离依赖</td>
+<td>严重衰减（&gt;100步后几乎遗忘）</td>
+<td>无衰减（任意距离直接注意）</td>
+</tr>
+<tr>
+<td>训练时间（同等数据量）</td>
+<td>极慢（无法并行）</td>
+<td>极快（全并行）</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>一句话总结</strong>：Prefill 阶段通过一次巨大的矩阵乘法并行处理完所有输入 Token，这种「所有 Token 同时计算」的能力正是 Transformer 取代 RNN 成为主流架构的根本原因。RNN 像是一个人逐字阅读，而 Transformer 像是一眼扫完整页纸。</p>
+<blockquote class="quote">
+<p><strong>面试要点</strong>：当被问到「Transformer 相比 RNN 的核心优势是什么？」时，答案的核心就是：Transformer 的自注意力机制消除了 RNN 中 h_t 对 h_{t-1} 的串行依赖，使得 Prefill 阶段可以完全并行化。但代价是 Decode 阶段仍然是自回归的（每次只能生成一个 Token），这也是为什么 KV Cache 如此重要——它让 Decode 阶段尽可能高效。</p>
+</blockquote>
+<p><strong>Decode阶段（逐步解码）：</strong> 从第二个输出Token开始，模型每次只处理一个新Token。具体步骤为：</p>
+<ol>
+<li>
+<p>对新Token计算其Q、K、V向量。</p>
+</li>
+<li>
+<p>将新的K和V向量追加（Append）到KV Cache中。</p>
+</li>
+<li>
+<p>用新Token的Q向量与KV Cache中所有的K向量计算注意力分数。</p>
+</li>
+<li>
+<p>用注意力分数对KV Cache中所有的V向量加权求和，得到输出。</p>
+</li>
+<li>
+<p>预测下一个Token，重复上述过程。</p>
+</li>
+</ol>
+<h4 id="prefill-vs-decodegpu">Prefill vs Decode：GPU 利用率与计算效率的根本差异</h4>
+<p>Prefill 和 Decode 虽然都在同一个模型上运行，但它们对 GPU 的使用方式截然不同：</p>
+<ul>
+<li>
+<p><strong>Prefill 是「计算密集型」（Compute-Bound）</strong>：大量矩阵乘法，GPU 的算力是瓶颈</p>
+</li>
+<li>
+<p><strong>Decode 是「访存密集型」（Memory-Bound）</strong>：频繁读写 KV Cache，显存带宽是瓶颈</p>
+</li>
+</ul>
+<p><strong>用一个比喻来理解：</strong></p>
+<pre class="code-block"><code>Prefill 像工厂批量生产：
+  一次性把 1000 件原料放上流水线，所有机器同时开工，满载运转。
+  瓶颈是机器够不够快（算力）。
+
+Decode 像快递员送货：
+  每次只拿 1 件包裹，但要去仓库查找历史订单（读 KV Cache）。
+  瓶颈是跑仓库的速度（显存带宽），而不是包裹本身的处理速度。
+</code></pre>
+
+<p><strong>具体数值示例（以 LLaMA-3 70B 在 H100 GPU 上为例）：</strong></p>
+<pre class="code-block"><code>硬件参数：
+  H100 峰值算力：989 TFLOPS（FP16）
+  H100 显存带宽：3.35 TB/s
+  算力/带宽比：989,000 / 3,350 ≈ 295 FLOPS/Byte
+  （意味着：每从显存读 1 字节，GPU 能做 295 次浮点运算）
+
+模型参数：
+  参数量：70B（700 亿）
+  层数：80 层
+  d_model = 8192，注意力头数 = 64，d_k = 128
+</code></pre>
+
+<p><strong>Prefill 阶段的计算分析：</strong></p>
+<pre class="code-block"><code>假设输入 Prompt = 1000 个 Token
+
+主要计算量：矩阵乘法
+  每层 QKV 投影：3 × (1000 × 8192 × 8192) = 201,326,592,000 FLOPS
+  每层注意力：  1000 × 1000 × 128 × 64头 = 8,192,000,000 FLOPS
+  每层 FFN：     1000 × 8192 × 28672 × 3 = 704,643,072,000 FLOPS
+  80 层总计：约 73 TFLOPS
+
+耗时估算：
+  73 TFLOPS ÷ 989 TFLOPS/s ≈ 74 ms
+
+GPU 利用率：
+  理论耗时 74ms，实际耗时约 90-100ms
+  算力利用率 = 73 / (989 × 0.095) ≈ 78%
+  → GPU 的计算单元大部分时间都在忙碑！
+</code></pre>
+
+<p><strong>Decode 阶段的计算分析：</strong></p>
+<pre class="code-block"><code>假设已生成 500 个 Token，现在生成第 501 个
+
+主要计算量：向量-矩阵乘法（每次只处理 1 个 Token）
+  每层 QKV 投影：3 × (1 × 8192 × 8192) = 201,326,592 FLOPS
+  每层注意力：  1 × 1500 × 128 × 64头 = 12,288,000 FLOPS
+  每层 FFN：     1 × 8192 × 28672 × 3 = 704,643,072 FLOPS
+  80 层总计：约 73 GFLOPS（注意：是 G 不是 T，比 Prefill 少 1000 倍！）
+
+主要访存量：读取模型权重 + KV Cache
+  读取模型参数：70B × 2 字节 (FP16) = 140 GB
+  读取 KV Cache：80层 × 1500 × 128 × 2(K+V) × 2字节 × 8组(GQA) = 4.7 GB
+  总访存：约 145 GB
+
+耗时估算（访存瓶颈）：
+  145 GB ÷ 3.35 TB/s ≈ 43 ms
+
+GPU 利用率：
+  实际计算量 73 GFLOPS，耗时 43ms
+  算力利用率 = 0.073T / (989 × 0.043) ≈ 0.17%
+  → GPU 99.8% 的算力都在空转，在等数据从显存搞过来！
+</code></pre>
+
+<p><strong>对比汇总表：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>指标</th>
+<th>Prefill 阶段</th>
+<th>Decode 阶段</th>
+<th>差异</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>处理的 Token 数</td>
+<td>L 个（全部输入）</td>
+<td>1 个（新生成的）</td>
+<td>L : 1</td>
+</tr>
+<tr>
+<td>计算量 (FLOPS)</td>
+<td>~73 TFLOPS</td>
+<td>~73 GFLOPS</td>
+<td>1000 : 1</td>
+</tr>
+<tr>
+<td>访存量</td>
+<td>较小（权重为主）</td>
+<td>巨大（权重 + KV Cache）</td>
+<td>计算密集 vs 访存密集</td>
+</tr>
+<tr>
+<td>计算/访存比</td>
+<td>~520 FLOPS/Byte</td>
+<td>~0.5 FLOPS/Byte</td>
+<td>1000 : 1</td>
+</tr>
+<tr>
+<td>GPU 算力利用率</td>
+<td>70%~85%</td>
+<td>0.1%~2%</td>
+<td>差百倍</td>
+</tr>
+<tr>
+<td>瓶颈类型</td>
+<td>算力（Compute-Bound）</td>
+<td>带宽（Memory-Bound）</td>
+<td>完全不同</td>
+</tr>
+<tr>
+<td>延迟特征</td>
+<td>一次性耗时较长（~100ms）</td>
+<td>每个 Token 耗时短（~40ms）</td>
+<td>但要重复多次</td>
+</tr>
+<tr>
+<td>吸收率 (MFU)</td>
+<td>60%~80%</td>
+<td>1%~5%</td>
+<td>差 10-60 倍</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>为什么 Decode 的 GPU 利用率这么低？</strong></p>
+<pre class="code-block"><code>核心原因：每次只处理 1 个 Token，但要读取整个模型的权重
+
+打个比方：
+  你有一本 1000 页的字典（模型权重 = 140GB）
+  Prefill 像是一次性查 1000 个词（翻了 1000 页，每页都查了东西，值了！）
+  Decode  像是每次只查 1 个词（但你仍然要翻完整本字典才能找到它！）
+
+  → 翻字典的时间（读显存）远超过实际查词的时间（计算）
+  → GPU 的计算核心大部分时间在等数据从显存读过来
+</code></pre>
+
+<p><strong>优化思路（为什么 4.7 节的优化技术如此重要）：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>优化方向</th>
+<th>对应技术</th>
+<th>解决的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>减少访存量</td>
+<td>GQA/MQA、KV Cache 量化</td>
+<td>KV Cache 太大，读取慢</td>
+</tr>
+<tr>
+<td>提高并行度</td>
+<td>Continuous Batching</td>
+<td>多个用户的 Decode 合并成一个大 batch，提高算力利用率</td>
+</tr>
+<tr>
+<td>减少读取次数</td>
+<td>算子融合、FlashAttention</td>
+<td>减少显存往返搬运次数</td>
+</tr>
+<tr>
+<td>减少 Decode 次数</td>
+<td>推测解码 (Speculative Decoding)</td>
+<td>用小模型试探性生成多个 Token，大模型一次性验证</td>
+</tr>
+<tr>
+<td>分层存储</td>
+<td>Offloading</td>
+<td>不活跃的 KV 搬到 CPU/SSD，空出 GPU 显存</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="quote">
+<p><strong>一句话总结</strong>：Prefill 是「忙的充实」（GPU 算力满载），Decode 是「忙的空转」（GPU 等数据）。所有 Decode 优化技术的本质都是：要么减少要读的数据量，要么让每次读取能做更多计算，要么减少读取的次数。</p>
+</blockquote>
+<h3 id="kv-cache_2">案例演示：完整的 KV Cache 工作流程</h3>
+<p>继续统一案例。假设 Prompt 是"我 爱"，模型需要自回归生成后续内容。</p>
+<p><strong>步骤 1：Prefill 阶段（处理 Prompt "我 爱"）</strong></p>
+<pre class="code-block"><code>输入 Token IDs: [0, 1]  (&quot;我&quot;, &quot;爱&quot;)
+
+对两个 Token 并行计算 Q, K, V:
+  &quot;我&quot; → Q0=[0.50, 0.60], K0=[1.069, 1.013], V0=[0.52, 0.81]
+  &quot;爱&quot; → Q1=[0.73, 0.88], K1=[1.269, 1.155], V1=[0.93, 1.12]
+
+执行注意力计算（用 Q0, Q1 分别与 K0, K1 做点积）
+→ 得到输出向量
+
+初始化 KV Cache:
+  K_cache = [[1.069, 1.013], [1.269, 1.155]]  ← 存入 K0, K1
+  V_cache = [[0.52, 0.81],  [0.93, 1.12]]     ← 存入 V0, V1
+  (Q0, Q1 计算完毕后直接丢弃，不存入缓存)
+</code></pre>
+
+<p><strong>步骤 2：Decode 阶段（生成第 1 个新 Token）</strong></p>
+<p>模型预测下一个 Token 为"苹果"（ID=2）。</p>
+<pre class="code-block"><code>仅对新 Token &quot;苹果&quot; 计算 Q, K, V:
+  &quot;苹果&quot; → Q2=[0.825, 0.934], K2=[1.103, 0.808], V2=[0.67, 0.58]
+
+先将新 Token 的 K2, V2 追加到 KV Cache:
+  K_cache = [[1.069,1.013], [1.269,1.155]] → 追加 K2 → [[1.069,1.013], [1.269,1.155], [1.103,0.808]]
+  V_cache = [[0.52,0.81], [0.93,1.12]] → 追加 V2 → [[0.52,0.81], [0.93,1.12], [0.67,0.58]]
+
+从 KV Cache 取出全部 K 和 V:
+  K_all = [K0, K1, K2] = [[1.069,1.013], [1.269,1.155], [1.103,0.808]]
+  V_all = [V0, V1, V2] = [[0.52,0.81], [0.93,1.12], [0.67,0.58]]
+
+注意力计算（仅用 Q2 查询所有 K）:
+  score(2→0) = Q2·K0/√2 = 1.293
+  score(2→1) = Q2·K1/√2 = 1.503
+  score(2→2) = Q2·K2/√2 = 1.177
+  → softmax → weights = [0.320, 0.395, 0.285]
+  → output = 0.320×V0 + 0.395×V1 + 0.285×V2 = [0.724, 0.866]
+
+注意：Q2 用完即丢弃，不存入 Cache
+</code></pre>
+
+<p><strong>步骤 3：Decode 阶段（生成第 2 个新 Token）</strong></p>
+<p>模型预测下一个 Token 为"<code>&lt;eos&gt;</code>"（ID=5，停止符）。</p>
+<pre class="code-block"><code>仅对新 Token &quot;&lt;eos&gt;&quot; 计算 Q, K, V:
+  &quot;&lt;eos&gt;&quot; → Q3=[0.12, 0.15], K3=[0.08, 0.06], V3=[0.03, 0.04]
+
+先将新 Token 的 K3, V3 追加到 KV Cache:
+  K_cache = [K0, K1, K2] → 追加 K3 → [K0, K1, K2, K3]
+  V_cache = [V0, V1, V2] → 追加 V3 → [V0, V1, V2, V3]
+
+从 KV Cache 取出全部 K 和 V（共 4 个 Token）:
+  K_all = [K0, K1, K2, K3]  ← 4 个 K 向量
+  V_all = [V0, V1, V2, V3]  ← 4 个 V 向量
+
+注意力计算（仅用 Q3 查询所有 K）:
+  score(3→0), score(3→1), score(3→2), score(3→3)
+  → softmax → weights
+  → output = 加权求和所有 V
+
+注意：Q3 用完即丢弃，不存入 Cache
+
+遇到 &lt;eos&gt;，生成结束。
+</code></pre>
+
+<h3 id="43-q">4.3 核心逻辑：为什么不缓存 Q？</h3>
+<pre class="code-block"><code>时间步 t=2 生成 &quot;苹果&quot;:
+  Q2 的使命: 用 Q2 去查 [K0, K1, K2] → 计算完毕 → Q2 再也不会被使用
+
+时间步 t=3 生成 &quot;&lt;eos&gt;&quot;:
+  需要用 Q3 去查 [K0, K1, K2, K3]
+  → 需要 K0, K1, K2（历史的 K，必须缓存！）
+  → 需要 V0, V1, V2（历史的 V，必须缓存！）
+  → 不需要 Q0, Q1, Q2（历史的 Q，没有任何用途）
+</code></pre>
+
+<p><strong>一句话总结</strong>：Q 是"提问者"，用完就走；K 和 V 是"被查询的知识库"，必须永久保留供未来所有新 Token 查询。</p>
+<h3 id="44">4.4 效率对比</h3>
+<p>对比有无 KV Cache 时的计算量：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>生成步骤</th>
+<th>无 KV Cache（重新计算所有）</th>
+<th>有 KV Cache（仅计算新 Token）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生成第 1 个 Token</td>
+<td>计算 3 个 Token 的 QKV（Prompt 2 + 新 1）</td>
+<td>计算 1 个 Token 的 QKV</td>
+</tr>
+<tr>
+<td>生成第 2 个 Token</td>
+<td>计算 4 个 Token 的 QKV</td>
+<td>计算 1 个 Token 的 QKV</td>
+</tr>
+<tr>
+<td>生成第 3 个 Token</td>
+<td>计算 5 个 Token 的 QKV</td>
+<td>计算 1 个 Token 的 QKV</td>
+</tr>
+<tr>
+<td>生成第 100 个 Token</td>
+<td>计算 102 个 Token 的 QKV</td>
+<td>计算 1 个 Token 的 QKV</td>
+</tr>
+<tr>
+<td><strong>总计算量</strong></td>
+<td>∑(i=3..102) = 5247 次 QKV 计算</td>
+<td>100 次 QKV 计算</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>加速比</strong>：5247 / 100 = <strong>52.5 倍</strong>！序列越长，加速越显著。</p>
+<h3 id="45-kv-cache">4.5 KV Cache 的存储与挑战</h3>
+<p>KV Cache虽然大幅提升了推理速度（实测可达5倍以上的加速），但它也带来了显著的显存压力。KV Cache的大小与以下因素成正比：</p>
+<pre class="code-block"><code>KV Cache Size = 2 × num_layers × num_kv_heads × seq_len × head_dim × precision
+</code></pre>
+
+<p>例如，对于一个32层、32个KV头、头维度128、序列长度4096的模型（使用FP16精度），KV Cache的大小约为：</p>
+<pre class="code-block"><code>2 × 32 × 32 × 4096 × 128 × 2 bytes = 2 GB
+</code></pre>
+
+<p>这意味着每个并发用户的请求都需要占用数GB的显存来存储KV Cache。为了缓解这一问题，业界提出了多种优化方案：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>优化方案</th>
+<th>核心思想</th>
+<th>代表工作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GQA (Grouped Query Attention)</td>
+<td>多个Q头共享同一组K/V头，减少KV头数量</td>
+<td>LLaMA 2/3, Qwen-2</td>
+</tr>
+<tr>
+<td>MQA (Multi-Query Attention)</td>
+<td>所有Q头共享一组K/V</td>
+<td>Falcon, PaLM</td>
+</tr>
+<tr>
+<td>KV Cache量化</td>
+<td>将缓存的K/V从FP16压缩为INT8/INT4</td>
+<td>KIVI, KVQuant</td>
+</tr>
+<tr>
+<td>稀疏注意力</td>
+<td>只缓存重要Token的K/V</td>
+<td>StreamingLLM, H2O</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="46-kv-cache">4.6 训练阶段不需要KV Cache</h3>
+<p>需要特别强调的是，<strong>KV Cache仅用于推理阶段，训练阶段不使用</strong>。原因在于：训练时，模型通过教师强制（Teacher Forcing）方式，一次性将完整的输入-输出序列送入模型，利用因果掩码（Causal Mask）并行计算所有位置的注意力。此时不存在"逐步生成"的过程，因此无需缓存。</p>
+<h3 id="_15">评分要点</h3>
+<ul>
+<li>
+<p>能够用具体数值演示 Prefill 和 Decode 阶段的 KV Cache 操作。</p>
+</li>
+<li>
+<p>准确描述"仅计算当前 QKV，复用历史 KV，追加新 KV"的流程。</p>
+</li>
+<li>
+<p>能够计算有无 KV Cache 的计算量差异，说明加速效果。</p>
+</li>
+<li>
+<p>从注意力计算逻辑的角度，透彻解释 Q 是一次性使用而 K/V 是持久被查询的。</p>
+</li>
+</ul>
+<hr />
+<h3 id="47-kv-cache">4.7 KV Cache 核心优化技术详解</h3>
+<p>KV Cache 虽然大幅加速了推理，但它带来了严峻的显存压力。以 LLaMA-3 70B 模型为例，打开 128K 上下文窗口时，单个用户的 KV Cache 就需要约 40GB 显存——几乎占满一张 H100 (80GB) 的一半。为了解决这个问题，业界发展出了一整套优化技术体系。</p>
+<hr />
+<h4 id="471-gqa-mqa">4.7.1 注意力架构优化：GQA 与 MQA</h4>
+<p><strong>问题背景</strong>：在标准的多头注意力（MHA）中，每个注意力头都有独立的 Q、K、V 投影矩阵。如果有 32 个头，就需要存储 32 组 K 和 32 组 V，KV Cache 非常大。</p>
+<p><strong>核心思路</strong>：让多个 Q 头共享同一组 K/V，从而减少需要缓存的 K/V 数量。</p>
+<div class="diagram-container">
+  <div class="section-title" style="color: #00d4ff;">三种注意力架构对比</div>
+  <div class="compare-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+    <div class="compare-section" style="border-color: #00d4ff; background: #0d1520;">
+      <div style="color:#00d4ff;font-weight:bold;font-size:13px;margin-bottom:10px;">MHA（标准多头注意力）</div>
+      <div style="font-size:12px;color:#e2e8f0;line-height:1.8;">
+        Q头1 → K头1, V头1<br>
+        Q头2 → K头2, V头2<br>
+        Q头3 → K头3, V头3<br>
+        ...<br>
+        Q头32 → K头32, V头32
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#1a2a3a;border-radius:4px;font-size:11px;color:#a0aec0;">
+        KV Cache = 32组K + 32组V = <span style="color:#00d4ff;font-weight:bold;">64 组向量</span><br>
+        代表：LLaMA-1, GPT-3
+      </div>
+    </div>
+    <div class="compare-section" style="border-color: #ed8936; background: #0d1520;">
+      <div style="color:#ed8936;font-weight:bold;font-size:13px;margin-bottom:10px;">MQA（多查询注意力）</div>
+      <div style="font-size:12px;color:#e2e8f0;line-height:1.8;">
+        Q头1 ─┐<br>
+        Q头2 ─┤<br>
+        Q头3 ─┼→ <span style="color:#ed8936;">共享 K头1, V头1</span><br>
+        ...&nbsp;&nbsp;&nbsp;│<br>
+        Q头32┘
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#2a1a0a;border-radius:4px;font-size:11px;color:#a0aec0;">
+        KV Cache = 1组K + 1组V = <span style="color:#ed8936;font-weight:bold;">2 组向量</span><br>
+        缩小 32 倍！但质量下降<br>
+        代表：PaLM, Falcon
+      </div>
+    </div>
+    <div class="compare-section" style="border-color: #48bb78; background: #0d1520;">
+      <div style="color:#48bb78;font-weight:bold;font-size:13px;margin-bottom:10px;">GQA（分组查询注意力）</div>
+      <div style="font-size:12px;color:#e2e8f0;line-height:1.8;">
+        Q头1~4 → <span style="color:#48bb78;">共享 K组1, V组1</span><br>
+        Q头5~8 → <span style="color:#48bb78;">共享 K组2, V组2</span><br>
+        ...<br>
+        Q头29~32 → <span style="color:#48bb78;">共享 K组8, V组8</span>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#0a1a0a;border-radius:4px;font-size:11px;color:#a0aec0;">
+        KV Cache = 8组K + 8组V = <span style="color:#48bb78;font-weight:bold;">16 组向量</span><br>
+        缩小 4 倍，质量接近 MHA<br>
+        代表：LLaMA-2/3, Mistral, Qwen-2
+      </div>
+    </div>
+  </div>
+</div>
+
+<p><strong>数值对比（以 32 头、128 维、4096 序列长度、FP16 为例）</strong>：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>架构</th>
+<th>KV 头数</th>
+<th>单用户 KV Cache</th>
+<th>相对 MHA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MHA（32 组 KV）</td>
+<td>32</td>
+<td>2 × 32 × 32 × 4096 × 128 × 2B = <strong>2 GB</strong></td>
+<td>1×</td>
+</tr>
+<tr>
+<td>GQA（8 组 KV）</td>
+<td>8</td>
+<td>2 × 32 × 8 × 4096 × 128 × 2B = <strong>512 MB</strong></td>
+<td>0.25×</td>
+</tr>
+<tr>
+<td>MQA（1 组 KV）</td>
+<td>1</td>
+<td>2 × 32 × 1 × 4096 × 128 × 2B = <strong>64 MB</strong></td>
+<td>0.03×</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>通俗理解</strong>：</p>
+<ul>
+<li>
+<p>MHA = 每个学生都有自己的笔记本（信息最全，但占空间最多）</p>
+</li>
+<li>
+<p>MQA = 全班共用一本笔记（省空间，但信息可能不够用）</p>
+</li>
+<li>
+<p>GQA = 每 4 个学生共用一本笔记（折中方案，省空间又不太丢信息）</p>
+</li>
+</ul>
+<hr />
+<h4 id="472-pagedattention-kv-cache">4.7.2 PagedAttention：像操作系统管理内存一样管理 KV Cache</h4>
+<p><strong>问题背景</strong>：传统系统为每个请求预分配一块连续的显存空间来存放 KV Cache。但问题是——模型生成多少个 Token 是未知的！系统只能按最大长度预分配，导致大量显存浪费。</p>
+<p><strong>三种显存浪费</strong>：</p>
+<div class="diagram-container">
+  <div class="section-title" style="color: #fc8181;">传统 KV Cache 内存分配（连续空间）</div>
+  <div style="margin-bottom:16px;">
+    <div style="color:#e2e8f0;font-size:12px;margin-bottom:6px;">请求 A（实际生成 50 个 Token，但预分配了 2048 个位置）：</div>
+    <div class="memory-bar" style="border:1px solid #fc8181;">
+      <div class="used" style="background:#48bb78;width:5%;color:#fff;">使用</div>
+      <div class="unused" style="background:#2a1a1a;color:#fc8181;">内部碎片（浪费 97.6%！）</div>
+    </div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="color:#e2e8f0;font-size:12px;margin-bottom:6px;">请求 B（还在生成中，预留了未来空间）：</div>
+    <div class="memory-bar" style="border:1px solid #ed8936;">
+      <div class="used" style="background:#48bb78;width:30%;color:#fff;">已使用</div>
+      <div class="unused" style="background:#2a2010;color:#ed8936;">预留空间（暂时浪费）</div>
+    </div>
+  </div>
+  <div style="margin-bottom:12px;">
+    <div style="color:#e2e8f0;font-size:12px;margin-bottom:6px;">请求 A 和 B 之间的间隙：</div>
+    <div style="display:flex;gap:8px;align-items:stretch;">
+      <div style="flex:1;padding:12px;background:#1a3a2a;border:1px solid #48bb78;border-radius:4px;text-align:center;color:#e2e8f0;font-size:12px;">请求 A</div>
+      <div style="flex:1.5;padding:12px;background:#2a1a1a;border:1px solid #fc8181;border-radius:4px;text-align:center;color:#fc8181;font-size:12px;">外部碎片<br><span style="font-size:10px;">（太小放不下新请求）</span></div>
+      <div style="flex:1;padding:12px;background:#1a3a2a;border:1px solid #48bb78;border-radius:4px;text-align:center;color:#e2e8f0;font-size:12px;">请求 B</div>
+    </div>
+  </div>
+  <div style="padding:10px;background:#2a0a0a;border-radius:6px;text-align:center;color:#fc8181;font-size:13px;font-weight:bold;">
+    结果：只有 20%~40% 的 KV Cache 显存被真正利用！
+  </div>
+</div>
+
+<p><strong>PagedAttention 的解决方案</strong>：</p>
+<p>借鉴操作系统的虚拟内存分页机制，把 KV Cache 切成固定大小的小块（Block），按需动态分配，不再要求连续存储。</p>
+<div class="diagram-container">
+  <div class="section-title" style="color: #48bb78;">PagedAttention 内存管理</div>
+  <div style="color:#a0aec0;font-size:12px;margin-bottom:12px;">物理显存被切成固定大小的 Block（每块存 16 个 Token 的 KV）：</div>
+  <div class="block-grid" style="grid-template-columns: repeat(8, 1fr);">
+    <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">块0<br><span style="color:#00d4ff;font-size:10px;">请A</span></div>
+    <div class="block-cell" style="border-color:#ed8936;background:#2a1a0a;color:#e2e8f0;">块1<br><span style="color:#ed8936;font-size:10px;">请B</span></div>
+    <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">块2<br><span style="color:#00d4ff;font-size:10px;">请A</span></div>
+    <div class="block-cell" style="border-color:#4a5568;background:#1a1a2e;color:#4a5568;">块3<br><span style="font-size:10px;">空闲</span></div>
+    <div class="block-cell" style="border-color:#ed8936;background:#2a1a0a;color:#e2e8f0;">块4<br><span style="color:#ed8936;font-size:10px;">请B</span></div>
+    <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">块5<br><span style="color:#00d4ff;font-size:10px;">请A</span></div>
+    <div class="block-cell" style="border-color:#4a5568;background:#1a1a2e;color:#4a5568;">块6<br><span style="font-size:10px;">空闲</span></div>
+    <div class="block-cell" style="border-color:#ed8936;background:#2a1a0a;color:#e2e8f0;">块7<br><span style="color:#ed8936;font-size:10px;">请B</span></div>
+  </div>
+  <div style="margin-top:14px;padding:10px;background:#0d1520;border-radius:6px;font-size:12px;color:#e2e8f0;">
+    <div style="font-weight:bold;color:#00d4ff;margin-bottom:6px;">Block Table（映射表）：</div>
+    <div>请求 A：逻辑块0→物理块0, 逻辑块1→物理块2, 逻辑块2→物理块5</div>
+    <div>请求 B：逻辑块0→物理块1, 逻辑块1→物理块4, 逻辑块2→物理块7</div>
+  </div>
+  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:150px;padding:8px;background:#0a1a0a;border-radius:4px;font-size:11px;color:#48bb78;">✓ 不需要连续空间 → 消除外部碎片</div>
+    <div style="flex:1;min-width:150px;padding:8px;background:#0a1a0a;border-radius:4px;font-size:11px;color:#48bb78;">✓ 按需分配 → 大幅减少内部碎片</div>
+    <div style="flex:1;min-width:150px;padding:8px;background:#0a1a0a;border-radius:4px;font-size:11px;color:#48bb78;">✓ 浪费率 &lt; 4%（vs 传统 60%~80%）</div>
+  </div>
+</div>
+
+<p><strong>PagedAttention 的工作流程（面向小白）</strong>：</p>
+<pre class="code-block"><code>第 1 步：请求到达
+  用户问：&quot;中国的首都在哪里？&quot;
+  系统从空闲块池中取出 1 个 Block，开始存放 Prefill 阶段的 KV
+
+第 2 步：Prefill 阶段
+  6 个 Token 的 KV 被计算出来
+  假设每个 Block 能存 4 个 Token 的 KV
+  → 需要 2 个 Block（第 1 块存 4 个，第 2 块存 2 个，剩余 2 个位置暂时空着）
+  Block Table: [物理块3, 物理块7]
+
+第 3 步：Decode 阶段（生成新 Token）
+  每生成 1 个新 Token，就往当前 Block 的空位追加 KV
+  当前 Block（物理块7）还有 2 个空位 → 直接追加，不需要新 Block
+
+第 4 步：当前 Block 满了
+  第 2 块的 4 个位置都用完了
+  系统从空闲池取出新 Block（比如物理块1）
+  Block Table 更新: [物理块3, 物理块7, 物理块1]
+
+第 5 步：请求结束
+  用户收到完整回答
+  释放该请求的所有 Block 回到空闲池
+  其他请求可以立即使用这些 Block
+</code></pre>
+
+<p><strong>vLLM 的实际效果</strong>：</p>
+<ul>
+<li>
+<p>传统系统浪费 60%~80% 的 KV Cache 显存</p>
+</li>
+<li>
+<p>vLLM（使用 PagedAttention）浪费率低于 4%</p>
+</li>
+<li>
+<p>吞吐量比 HuggingFace Transformers 高 24 倍</p>
+</li>
+<li>
+<p>吞吐量比 HuggingFace TGI 高 3.5 倍</p>
+</li>
+</ul>
+<hr />
+<h4 id="473-kv-cache">4.7.3 KV Cache 量化：用更少的位数存储</h4>
+<p><strong>核心思路</strong>：KV Cache 中的 K/V 向量默认用 FP16（16位浮点数）存储，每个数占 2 字节。如果我们把精度降低到 INT8（8位整数）或 INT4（4位整数），就能把 Cache 大小压缩 2~4 倍。</p>
+<pre class="code-block"><code>量化前后对比：
+
+原始 KV 向量（FP16，每个数 2 字节）：
+  K = [1.234, -0.567, 2.891, 0.123]  → 占用 4×2 = 8 字节
+
+INT8 量化后（每个数 1 字节）：
+  步骤 1：找到最大值和最小值
+    max = 2.891, min = -0.567
+  步骤 2：计算缩放因子
+    scale = (max - min) / 255 = 3.458 / 255 = 0.01356
+    zero_point = round(-min / scale) = round(41.8) = 42
+  步骤 3：量化（映射到 0~255 的整数）
+    1.234  → round(1.234/0.01356 + 42) = round(133) = 133
+    -0.567 → round(-0.567/0.01356 + 42) = round(0.2) = 0
+    2.891  → round(2.891/0.01356 + 42) = round(255) = 255
+    0.123  → round(0.123/0.01356 + 42) = round(51) = 51
+  量化后：K_int8 = [133, 0, 255, 51]  → 占用 4×1 = 4 字节（节省 50%！）
+
+INT4 量化后（每个数 0.5 字节）：
+  映射到 0~15 的整数 → 占用 4×0.5 = 2 字节（节省 75%！）
+
+反量化（使用时还原）：
+  K_restored = (K_int8 - zero_point) × scale
+  133 → (133 - 42) × 0.01356 = 1.234（几乎无损）
+  0   → (0 - 42) × 0.01356 = -0.570（微小误差）
+</code></pre>
+
+<p><strong>量化精度与效果对比</strong>：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>精度</th>
+<th>每个数占用</th>
+<th>Cache 压缩比</th>
+<th>质量损失</th>
+<th>代表工具</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP16（原始）</td>
+<td>2 字节</td>
+<td>1×</td>
+<td>无</td>
+<td>默认</td>
+</tr>
+<tr>
+<td>FP8</td>
+<td>1 字节</td>
+<td>2×</td>
+<td>极小</td>
+<td>TensorRT-LLM</td>
+</tr>
+<tr>
+<td>INT8</td>
+<td>1 字节</td>
+<td>2×</td>
+<td>很小</td>
+<td>LMDeploy, vLLM</td>
+</tr>
+<tr>
+<td>INT4</td>
+<td>0.5 字节</td>
+<td>4×</td>
+<td>轻微</td>
+<td>KIVI, HQQ</td>
+</tr>
+<tr>
+<td>INT2</td>
+<td>0.25 字节</td>
+<td>8×</td>
+<td>明显</td>
+<td>Quanto（实验性）</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>通俗理解</strong>：就像照片压缩——原图（FP16）最清晰但最大，JPEG 高质量（INT8）肉眼看不出区别但小一半，JPEG 低质量（INT4）有点模糊但小很多。</p>
+<hr />
+<h4 id="474-prefill-chunked-prefill">4.7.4 Prefill 优化：Chunked Prefill（分块预填充）</h4>
+<p><strong>问题背景</strong>：当用户输入一个很长的 Prompt（比如 10000 个 Token），Prefill 阶段需要一次性处理所有 Token。这会导致：</p>
+<ol>
+<li>
+<p>GPU 被长时间独占，其他用户的 Decode 请求被阻塞</p>
+</li>
+<li>
+<p>显存峰值很高（需要同时存储所有 Token 的中间计算结果）</p>
+</li>
+</ol>
+<p><strong>Chunked Prefill 的解决方案</strong>：把长 Prompt 切成小块（Chunk），分批处理。</p>
+<div class="diagram-container">
+  <div class="compare-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="compare-section" style="border-color: #fc8181; background: #1a0a0a;">
+      <div class="section-title" style="color: #fc8181;">传统 Prefill（一次性处理）</div>
+      <div class="memory-bar" style="border:1px solid #fc8181;height:40px;">
+        <div class="used" style="background:#fc8181;width:100%;color:#fff;font-size:12px;">一次性计算 10000 个 Token 的 QKV，耗时 2 秒</div>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#2a0a0a;border-radius:4px;color:#fc8181;font-size:12px;text-align:center;">
+        ⚠ 在这 2 秒内，其他用户的 Decode 请求全部排队等待！
+      </div>
+    </div>
+    <div class="compare-section" style="border-color: #48bb78; background: #0a1a0a;">
+      <div class="section-title" style="color: #48bb78;">Chunked Prefill（分块处理，每块 512 Token）</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+        <div style="padding:6px 10px;background:#1a3a2a;border:1px solid #48bb78;border-radius:4px;color:#e2e8f0;font-size:11px;">块1 (512)</div>
+        <div style="padding:6px 10px;background:#1a3a2a;border:1px solid #48bb78;border-radius:4px;color:#e2e8f0;font-size:11px;">块2 (512)</div>
+        <div style="padding:6px 10px;background:#1a3a2a;border:1px solid #48bb78;border-radius:4px;color:#e2e8f0;font-size:11px;">块3 (512)</div>
+        <div style="padding:6px 10px;background:#1a1a2e;border:1px solid #4a5568;border-radius:4px;color:#a0aec0;font-size:11px;">...</div>
+        <div style="padding:6px 10px;background:#1a3a2a;border:1px solid #48bb78;border-radius:4px;color:#e2e8f0;font-size:11px;">块20 (512)</div>
+      </div>
+      <div style="padding:8px;background:#0a2a0a;border-radius:4px;color:#48bb78;font-size:12px;text-align:center;">
+        ✓ 块之间可插入其他用户的 Decode 请求 → 不再阻塞！
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:#a0aec0;line-height:1.8;">
+        优点：<br>
+        1. Decode 请求可在块间"插队"<br>
+        2. 显存峰值降低（每次只处理 512 个）<br>
+        3. 总处理时间几乎不变
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr />
+<h4 id="475-kv-cache-offloadinggpu-cpu-ssd">4.7.5 KV Cache Offloading：分层存储（GPU → CPU → 磁盘/SSD）</h4>
+<p><strong>问题背景</strong>：当并发用户很多、上下文很长时，所有用户的 KV Cache 可能超出 GPU 显存容量。</p>
+<p><strong>核心思路</strong>：把不活跃的 KV Cache 从 GPU 显存"搬"到更便宜、更大的存储层级。就像电脑的内存管理：热数据放 CPU 缓存，温数据放内存，冷数据放硬盘。</p>
+<div class="diagram-container">
+  <div class="section-title" style="color: #00d4ff;">三层存储架构</div>
+  <div class="storage-tier" style="border-color:#48bb78;background:#0d1a10;">
+    <div style="color:#48bb78;font-weight:bold;font-size:13px;">GPU HBM（高带宽显存）</div>
+    <div style="color:#a0aec0;font-size:12px;margin:4px 0;">容量：80 GB（H100） | 带宽：3.35 TB/s | 存放：当前活跃用户的 KV Cache</div>
+    <div class="user-grid">
+      <div class="user-card" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">用户A的<br>KV Cache</div>
+      <div class="user-card" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">用户B的<br>KV Cache</div>
+      <div class="user-card" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">用户C的<br>KV Cache</div>
+      <div style="display:flex;align-items:center;color:#a0aec0;font-size:11px;">← 正在对话的用户</div>
+    </div>
+  </div>
+  <div class="flow-arrow">↓ <span style="font-size:12px;color:#f0c040;">GPU满了，把不活跃的搬下去</span></div>
+  <div class="storage-tier" style="border-color:#ed8936;background:#1a1008;">
+    <div style="color:#ed8936;font-weight:bold;font-size:13px;">CPU DRAM（主内存）</div>
+    <div style="color:#a0aec0;font-size:12px;margin:4px 0;">容量：512 GB ~ 2 TB | 带宽：~100 GB/s | 存放：暂时不活跃的用户的 KV Cache</div>
+    <div class="user-grid">
+      <div class="user-card" style="border-color:#ed8936;background:#2a1a0a;color:#e2e8f0;">用户D<br><span style="font-size:10px;">(5分钟没说话)</span></div>
+      <div class="user-card" style="border-color:#ed8936;background:#2a1a0a;color:#e2e8f0;">用户E<br><span style="font-size:10px;">(切换到其他tab)</span></div>
+      <div class="user-card" style="border-color:#ed8936;background:#2a1a0a;color:#e2e8f0;">用户F<br><span style="font-size:10px;">(在打字中...)</span></div>
+      <div class="user-card" style="border-color:#ed8936;background:#2a1a0a;color:#e2e8f0;">用户G<br><span style="font-size:10px;">(暂时离开)</span></div>
+    </div>
+  </div>
+  <div class="flow-arrow">↓ <span style="font-size:12px;color:#f0c040;">长时间不活跃的继续往下搬</span></div>
+  <div class="storage-tier" style="border-color:#9f7aea;background:#10081a;">
+    <div style="color:#9f7aea;font-weight:bold;font-size:13px;">NVMe SSD / 网络存储</div>
+    <div style="color:#a0aec0;font-size:12px;margin:4px 0;">容量：几 TB ~ 几十 TB | 带宽：~7 GB/s（本地 NVMe） | 存放：长时间不活跃的会话</div>
+    <div class="user-grid">
+      <div class="user-card" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">用户H<br><span style="font-size:10px;">(昨天的对话)</span></div>
+      <div class="user-card" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">用户I<br><span style="font-size:10px;">(上午的对话)</span></div>
+      <div class="user-card" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">用户J<br><span style="font-size:10px;">(1小时前的对话)</span></div>
+    </div>
+  </div>
+</div>
+
+<p><strong>Offloading 的工作流程</strong>：</p>
+<pre class="code-block"><code>场景：用户 D 突然回来继续对话
+
+1. 系统发现用户 D 的 KV Cache 在 CPU 内存中
+2. 判断：从 CPU 加载 KV Cache 需要多久？vs 重新计算 Prefill 需要多久？
+   - 加载时间 = Cache 大小 / CPU→GPU 带宽
+   - 例如：2GB / 100 GB/s = 0.02 秒
+   - 重新 Prefill 时间（70B 模型，10K Token）= 约 5 秒
+   - 结论：加载比重算快 250 倍！→ 选择加载
+
+3. 把用户 D 的 KV Cache 从 CPU 搬回 GPU
+4. 用户 D 可以无缝继续对话，不需要等待重新处理历史消息
+</code></pre>
+
+<p><strong>什么时候 Offloading 有效，什么时候无效？</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>是否有效</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>70B+ 模型 + 长上下文（10K+ Token）</td>
+<td>有效</td>
+<td>Prefill 重算代价极高，加载更快</td>
+</tr>
+<tr>
+<td>多用户共享相同系统提示词（RAG）</td>
+<td>有效</td>
+<td>相同前缀的 KV Cache 可被多用户复用</td>
+</tr>
+<tr>
+<td>跨节点会话迁移</td>
+<td>有效</td>
+<td>避免在新 GPU 上重新 Prefill</td>
+</tr>
+<tr>
+<td>短对话 + 小模型（7B）</td>
+<td>无效</td>
+<td>Prefill 本身很快，加载的 I/O 开销反而更大</td>
+</tr>
+<tr>
+<td>每次都是全新问题（无前缀复用）</td>
+<td>无效</td>
+<td>缓存命中率低，白白占用存储</td>
+</tr>
+<tr>
+<td>低带宽网络存储（普通 NFS）</td>
+<td>无效</td>
+<td>传输太慢，不如重算</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>关键技术：NVIDIA GPUDirect Storage (GDS)</strong>：</p>
+<pre class="code-block"><code>传统数据路径（需要 CPU 中转）：
+  SSD → CPU 内存 → GPU 显存（两次拷贝，CPU 成为瓶颈）
+
+GPUDirect Storage（绕过 CPU）：
+  SSD → GPU 显存（直接传输，延迟更低，CPU 不参与）
+
+效果：读取速度从 ~3 GB/s 提升到 ~7 GB/s（本地 NVMe）
+     远程存储通过 RDMA 可达 12~50 GB/s
+</code></pre>
+
+<hr />
+<h4 id="476-prefix-caching">4.7.6 Prefix Caching（前缀缓存）</h4>
+<p><strong>问题背景</strong>：很多请求共享相同的前缀（比如系统提示词、RAG 检索到的相同文档）。每次都重新计算这些相同前缀的 KV 是浪费。</p>
+<p><strong>核心思路</strong>：把已经计算过的前缀 KV Cache 保存下来，下次遇到相同前缀直接复用。</p>
+<pre class="code-block"><code>场景：100 个用户都使用相同的系统提示词（2000 Token）
+
+没有 Prefix Caching：
+  用户 1：计算 2000 Token 的 KV（系统提示词）+ 用户问题
+  用户 2：计算 2000 Token 的 KV（系统提示词）+ 用户问题  ← 重复！
+  用户 3：计算 2000 Token 的 KV（系统提示词）+ 用户问题  ← 重复！
+  ...
+  总计：100 × 2000 = 200,000 次 Token 的 KV 计算
+
+有 Prefix Caching：
+  用户 1：计算 2000 Token 的 KV（系统提示词）→ 存入前缀缓存
+  用户 2：从缓存加载 2000 Token 的 KV + 只计算用户问题部分
+  用户 3：从缓存加载 2000 Token 的 KV + 只计算用户问题部分
+  ...
+  总计：2000 + 99 × 0 = 2000 次前缀 KV 计算（节省 99%！）
+
+识别方式：通过 Token 序列的哈希值来匹配
+  hash([系统提示词的 Token IDs]) → 如果命中缓存，直接复用
+</code></pre>
+
+<hr />
+<h4 id="477">4.7.7 优化技术总结与组合使用</h4>
+<p>实际部署中，这些优化技术通常组合使用：</p>
+<div class="diagram-container">
+  <div class="section-title" style="color: #00d4ff;">现代 LLM 推理引擎的完整优化栈</div>
+  <div class="layer-stack">
+    <div class="layer-item" style="border-color:#48bb78;background:#0d1a10;color:#e2e8f0;"><span style="color:#48bb78;font-weight:bold;">架构层</span>：GQA（减少 KV 头数，从源头减少 Cache 大小）</div>
+    <div class="layer-item" style="border-color:#00d4ff;background:#0d1520;color:#e2e8f0;"><span style="color:#00d4ff;font-weight:bold;">存储层</span>：PagedAttention（消除显存碎片，提高利用率）</div>
+    <div class="layer-item" style="border-color:#9f7aea;background:#10081a;color:#e2e8f0;"><span style="color:#9f7aea;font-weight:bold;">精度层</span>：KV Cache 量化（INT8/INT4，压缩 2~4 倍）</div>
+    <div class="layer-item" style="border-color:#ed8936;background:#1a1008;color:#e2e8f0;"><span style="color:#ed8936;font-weight:bold;">调度层</span>：Chunked Prefill（分块处理，减少阻塞）</div>
+    <div class="layer-item" style="border-color:#48bb78;background:#0d1a10;color:#e2e8f0;"><span style="color:#48bb78;font-weight:bold;">复用层</span>：Prefix Caching（共享前缀，避免重复计算）</div>
+    <div class="layer-item" style="border-color:#00d4ff;background:#0d1520;color:#e2e8f0;"><span style="color:#00d4ff;font-weight:bold;">容量层</span>：KV Cache Offloading（GPU→CPU→SSD 分层存储）</div>
+  </div>
+  <div style="margin-top:16px;padding:12px;background:#2a2010;border:1px solid #f0c040;border-radius:8px;">
+    <div style="color:#f0c040;font-weight:bold;font-size:13px;margin-bottom:8px;">组合效果（LLaMA-3 70B，128K 上下文）</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.8;">
+      原始 KV Cache：40 GB/用户 → <span style="color:#48bb78;">GQA</span>：10 GB → <span style="color:#9f7aea;">INT8</span>：5 GB → <span style="color:#00d4ff;">PagedAttention</span>：利用率 96%<br>
+      单张 H100 可同时服务用户数：<span style="color:#fc8181;">1~2 个</span> → <span style="color:#48bb78;font-weight:bold;">10+ 个</span>
+    </div>
+  </div>
+</div>
+
+<hr />
+</div><div class="section" id="s5"><h2>五、 从向量回到文本：LM Head 与 Decoding</h2>
+<p>经过多层 Transformer Block 的处理后，模型得到了每个 Token 位置上的最终隐藏状态向量（Hidden State）。对于自回归生成任务，我们关注的是<strong>序列中最后一个 Token 的隐藏状态</strong>，因为它融合了整个输入序列的上下文信息，将被用来预测下一个 Token。</p>
+<p>从数据流的角度看，最后一层 Transformer Block 的输出（即残差流的最终状态）还需要经过一次<strong>最终层归一化（Final LayerNorm）</strong>，然后才进入 LM Head。这个最终 LayerNorm 确保进入输出头的向量数值分布稳定。完整的链路是：</p>
+<div class="diagram-container">
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 0;">
+    <div class="flow-node" style="background: #1a2a3a; border: 1px solid #00d4ff; color: #00d4ff;">最后一层 Transformer Block 输出</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node" style="background: #1a3a2a; border: 1px solid #48bb78; color: #e2e8f0;">Final LayerNorm<span class="data-label">（归一化到均值0、方差1）</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node" style="background: #2a1a3a; border: 1px solid #9f7aea; color: #e2e8f0;">LM Head<span class="data-label">（线性层: d_model → vocab_size）</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node" style="background: #2a2010; border: 1px solid #ed8936; color: #e2e8f0;">Logits<span class="data-label">（未归一化得分，维度 = 词表大小）</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node" style="background: #1a3a2a; border: 1px solid #48bb78; color: #e2e8f0;">Softmax<span class="data-label">（转换为概率分布）</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node" style="background: #2a2010; border: 1px solid #f0c040; color: #f0c040;">采样策略<span class="data-label" style="color:#e2e8f0;">（选择下一个 Token）</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node" style="background: #1a2a3a; border: 1px solid #00d4ff; color: #00d4ff;">Tokenizer 反向查表<span class="data-label" style="color:#e2e8f0;">（ID → 文本）</span></div>
+  </div>
+</div>
+
+<p>其中 LM Head 的本质可以理解为一个“反嵌入”（Unembedding）操作：嵌入层将 Token 从离散 ID 空间映射到连续向量空间，而 LM Head 则将连续向量空间映射回离散 Token 空间。这个映射的实现方式是将隐藏向量与词表中每个 Token 的嵌入向量做内积，得到相似度得分（logits）。</p>
+<h3 id="lm-head-decoding_1">面试题：从向量回到文本（LM Head 与 Decoding）</h3>
+<blockquote class="quote">
+<p><strong>题目</strong>：经过所有 Transformer 层后，我们得到了最后一个 Token 的动态上下文向量。这个向量是如何最终转化为用户看到的自然语言文本的？请用具体数值演示完整的预测过程。</p>
+</blockquote>
+<h3 id="51-lm-head">5.1 LM Head（语言模型头）</h3>
+<p>LM Head本质上是一个线性层（Linear Layer），其权重矩阵的形状为 <code>[d_model, vocab_size]</code>。它的作用是将d维的隐藏状态向量映射到词表大小的维度上，产生一个长度等于词表大小的向量，称为<strong>logits</strong>（未归一化的对数概率）。</p>
+<p>在许多模型实现中，LM Head的权重矩阵与嵌入矩阵是<strong>共享的（Weight Tying）</strong>。这意味着嵌入层将Token ID映射为向量的过程，与LM Head将向量映射回Token空间的过程，使用的是同一个矩阵（转置后使用）。这种设计不仅减少了参数量，还在语义上保持了一致性。</p>
+<div style="background:#1a1a2e;border-left:4px solid #48bb78;padding:14px 16px;border-radius:6px;margin:16px 0;">
+<p style="margin:0 0 8px 0;"><strong style="color:#48bb78;">维度解读：</strong></p>
+<p style="margin:0;color:#e0e0e0;">矩阵乘法的结果是一个形状为 <code>[序列长度, vocab_size]</code> 的二维矩阵（加上 batch 维度为三维张量 <code>[batch, 序列长度, vocab_size]</code>）。其中每一行代表一个位置对词表中所有候选词的得分，每一个元素是该位置对某个特定词的得分（一个标量）。</p>
+<p style="margin:8px 0 0 0;color:#e0e0e0;">换言之，每个位置的隐藏状态（d_model 维向量）分别与 W_LM 的 vocab_size 个列向量做点积，每次点积得到一个数字，vocab_size 次点积的结果排列在一起，构成该位置的 vocab_size 维 logits 向量。以下案例中 <code>logits[i] = h · W_LM[:,i]</code> 逐词计算得到一个标量的展开过程，正是这一矩阵乘法的直观体现。实际大模型（如 Qwen）中词表规模为 151936，原理完全一致，只是维度更大。</p>
+</div>
+<h3 id="_16">案例演示：从隐藏向量到输出文本</h3>
+<p>继续统一案例。假设经过 Transformer 层后，最后一个位置（"爱"，位置 1）的输出向量为：</p>
+<pre class="code-block"><code>h_最终 = [0.82, 1.15, 0.43, 0.91]  (d_model=4 维)
+</code></pre>
+
+<p><strong>第一步：LM Head 线性投影</strong></p>
+<p>LM Head 的权重矩阵 W_LM 形状为 <code>[d_model, vocab_size]</code> = <code>[4, 6]</code>：</p>
+<pre class="code-block"><code>W_LM = [[0.8, 0.1, 1.2, 0.3, 0.2, -0.5],
+         [0.2, 0.4, 0.9, 0.1, 0.3, -0.3],
+         [0.1, 0.6, 0.3, 0.8, 0.5, -0.2],
+         [0.5, 0.2, 0.7, 0.4, 0.1, -0.4]]
+</code></pre>
+
+<p>计算 <code>logits = h_最终 · W_LM</code>：</p>
+<pre class="code-block"><code>logits[0] (&quot;我&quot;)   = 0.82×0.8 + 1.15×0.2 + 0.43×0.1 + 0.91×0.5
+                   = 0.656 + 0.230 + 0.043 + 0.455 = 1.384
+logits[1] (&quot;爱&quot;)   = 0.82×0.1 + 1.15×0.4 + 0.43×0.6 + 0.91×0.2
+                   = 0.082 + 0.460 + 0.258 + 0.182 = 0.982
+logits[2] (&quot;苹果&quot;) = 0.82×1.2 + 1.15×0.9 + 0.43×0.3 + 0.91×0.7
+                   = 0.984 + 1.035 + 0.129 + 0.637 = 2.785  ← 最高！
+logits[3] (&quot;手机&quot;) = 0.82×0.3 + 1.15×0.1 + 0.43×0.8 + 0.91×0.4
+                   = 0.246 + 0.115 + 0.344 + 0.364 = 1.069
+logits[4] (&quot;很&quot;)   = 0.82×0.2 + 1.15×0.3 + 0.43×0.5 + 0.91×0.1
+                   = 0.164 + 0.345 + 0.215 + 0.091 = 0.815
+logits[5] (&quot;&lt;eos&gt;&quot;)= 0.82×(-0.5) + 1.15×(-0.3) + 0.43×(-0.2) + 0.91×(-0.4)
+                   = -0.410 - 0.345 - 0.086 - 0.364 = -1.205
+
+logits = [1.384, 0.982, 2.785, 1.069, 0.815, -1.205]
+</code></pre>
+
+<p><strong>第二步：Softmax 转换为概率分布</strong></p>
+<pre class="code-block"><code>exp(logits) = [3.991, 2.670, 16.201, 2.913, 2.259, 0.300]
+总和 = 28.334
+
+P(&quot;我&quot;)   = 3.991 / 28.334 = 0.141 (14.1%)
+P(&quot;爱&quot;)   = 2.670 / 28.334 = 0.094 (9.4%)
+P(&quot;苹果&quot;) = 16.201 / 28.334 = 0.572 (57.2%)  ← 概率最高！
+P(&quot;手机&quot;) = 2.913 / 28.334 = 0.103 (10.3%)
+P(&quot;很&quot;)   = 2.259 / 28.334 = 0.080 (8.0%)
+P(&quot;&lt;eos&gt;&quot;)= 0.300 / 28.334 = 0.011 (1.1%)
+</code></pre>
+
+<h3 id="52">5.2 采样策略</h3>
+<p>获得概率分布后，模型需要从中选择一个Token作为输出。不同的采样策略会产生不同的生成效果：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>行为</th>
+<th>本例结果</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Greedy（贪心）</td>
+<td>直接选概率最大的</td>
+<td>选 ID=2（"苹果"），概率 57.2%</td>
+<td>确定性任务（翻译、摘要）</td>
+</tr>
+<tr>
+<td>Top-K (K=3)</td>
+<td>只从前 K 高概率中采样</td>
+<td>从 {苹果:57.2%, 我:14.1%, 手机:10.3%} 中随机采样</td>
+<td>平衡多样性与质量</td>
+</tr>
+<tr>
+<td>Top-p (p=0.8)</td>
+<td>累积概率达到 p 时截断</td>
+<td>苹果(57.2%)+我(14.1%)+手机(10.3%)=81.6% &gt; 80%，从这 3 个中采样</td>
+<td>动态候选集大小</td>
+</tr>
+<tr>
+<td>Temperature=0.5</td>
+<td>降低温度使分布更尖锐</td>
+<td>logits/0.5 后 Softmax，"苹果"概率进一步升高到 ~80%</td>
+<td>更确定性的输出</td>
+</tr>
+<tr>
+<td>Temperature=2.0</td>
+<td>升高温度使分布更平坦</td>
+<td>logits/2.0 后 Softmax，各 Token 概率更接近均匀</td>
+<td>创意写作、头脑风暴</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Temperature（温度系数）的详细计算</strong>：</p>
+<p>Temperature 参数 <code>T</code> 直接作用于 Softmax 之前的 logits，通过将每个 logit 除以 <code>T</code> 来调整概率分布：</p>
+<pre class="code-block"><code>P_i = exp(z_i / T) / ∑_j exp(z_j / T)
+</code></pre>
+
+<p>我们以 T=0.5 和 T=2.0 为例，看看它如何改变刚才算出的概率：</p>
+<p><strong>情况 1：T = 0.5（低温，更确定）</strong>先把所有 logit 除以 0.5（相当于乘以 2）：</p>
+<pre class="code-block"><code>新 logits = [1.384/0.5, 0.982/0.5, 2.785/0.5, 1.069/0.5, 0.815/0.5, -1.205/0.5]
+         = [2.768, 1.964, 5.570, 2.138, 1.630, -2.410]
+</code></pre>
+
+<p>重新计算 Softmax：</p>
+<pre class="code-block"><code>exp(新 logits) = [15.92, 7.12, 262.43, 8.48, 5.10, 0.08]
+总和 = 299.13
+P(&quot;苹果&quot;) = 262.43 / 299.13 = 87.7%  (原来是 57.2%)
+P(&quot;我&quot;)   = 15.92 / 299.13 = 5.3%   (原来是 14.1%)
+</code></pre>
+
+<p><strong>结果</strong>：最高概率的词（"苹果"）的优势被急剧放大，模型变得更加"自信"，输出更加稳定、可预测。当 T 接近 0 时，就等同于贪心搜索。</p>
+<p><strong>情况 2：T = 2.0（高温，更随机）</strong>先把所有 logit 除以 2.0（相当于减半）：</p>
+<pre class="code-block"><code>新 logits = [1.384/2, 0.982/2, 2.785/2, 1.069/2, 0.815/2, -1.205/2]
+         = [0.692, 0.491, 1.392, 0.534, 0.407, -0.602]
+</code></pre>
+
+<p>重新计算 Softmax：</p>
+<pre class="code-block"><code>exp(新 logits) = [1.99, 1.63, 4.02, 1.70, 1.50, 0.54]
+总和 = 11.38
+P(&quot;苹果&quot;) = 4.02 / 11.38 = 35.3%  (原来是 57.2%)
+P(&quot;我&quot;)   = 1.99 / 11.38 = 17.4%  (原来是 14.1%)
+P(&quot;爱&quot;)   = 1.63 / 11.38 = 14.3%  (原来是 9.4%)
+</code></pre>
+
+<p><strong>结果</strong>：概率分布变得更加平坦，原本概率较低的词也有了更大的机会被选中。模型变得更有"创意"和随机性。当 T 趋向于无穷大时，所有词被选中的概率将完全相等。</p>
+<h3 id="53">5.3 反向映射与自回归循环</h3>
+<p>假设使用贪心策略，选中 ID=2：</p>
+<pre class="code-block"><code>选中 Token ID: 2
+Tokenizer 反向查表: ID 2 → &quot;苹果&quot;
+输出给用户: &quot;苹果&quot;
+</code></pre>
+
+<p>将新 Token 拼接到输入序列：</p>
+<pre class="code-block"><code>原始输入: [0, 1]        → &quot;我 爱&quot;
+新输入:   [0, 1, 2]     → &quot;我 爱 苹果&quot;
+                           ↑ 新增
+继续下一轮预测...
+</code></pre>
+
+<p>这个循环会一直持续，直到模型输出一个特殊的停止符（如 <code>&lt;eos&gt;</code>）或达到预设的最大生成长度。</p>
+<hr />
+</div><div class="section" id="s6"><h2>六、 训练与推理的差异对比</h2>
+<p>训练和推理使用的是同一个模型架构（同样的 Transformer 层、同样的权重矩阵），但它们的“工作模式”完全不同。一个类比：训练是“学生在考试中学习”，推理是“毕业后在工作中应用”。</p>
+<h3 id="61">6.1 总体对比表</h3>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>训练阶段</th>
+<th>推理阶段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>核心目标</td>
+<td>调整所有参数，让模型学会预测下一个词</td>
+<td>用已学好的参数，一个一个地生成新词</td>
+</tr>
+<tr>
+<td>输入方式</td>
+<td>完整句子一次性输入（Teacher Forcing）</td>
+<td>用户输入 + 已生成的词逐步追加</td>
+</tr>
+<tr>
+<td>并行度</td>
+<td>高度并行（所有位置同时计算）</td>
+<td>Prefill 并行 + Decode 串行</td>
+</tr>
+<tr>
+<td>因果掩码</td>
+<td>必须使用三角形掩码矩阵</td>
+<td>不需要（生成顺序天然保证因果性）</td>
+</tr>
+<tr>
+<td>KV Cache</td>
+<td>不使用</td>
+<td>核心优化手段，避免重复计算</td>
+</tr>
+<tr>
+<td>参数状态</td>
+<td>每个 batch 后更新所有参数</td>
+<td>所有参数完全冻结，只读不写</td>
+</tr>
+<tr>
+<td>计算瓶颈</td>
+<td>计算密集（大 batch 矩阵乘法 + 反向传播）</td>
+<td>访存密集（频繁读写 KV Cache）</td>
+</tr>
+<tr>
+<td>Softmax 输出用途</td>
+<td>与真实答案计算损失，用于反向传播</td>
+<td>用于采样下一个 Token</td>
+</tr>
+<tr>
+<td>硬件需求</td>
+<td>多张 GPU + 大显存（存参数+梯度+优化器状态）</td>
+<td>相对较少（只存参数+KV Cache）</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="62">6.2 输入方式的差异（最核心的区别）</h3>
+<p><strong>训练时：Teacher Forcing（老师强制纠正）</strong></p>
+<p>Teacher Forcing 是一种训练序列生成模型的核心技术。它的核心思想是：<strong>在训练时，每一步将"真实的目标输出"（ground truth）作为当前步的输入，而不是使用模型自己上一步预测的输出</strong>。</p>
+<pre class="code-block"><code>用一个翻译任务来理解：把 &quot;Hello&quot; 翻译成 &quot;你好&quot;
+
+推理时（自回归，用自己的预测作为下一步输入）：
+  输入 &lt;s&gt;   → 输出 &quot;你&quot;
+  输入 &quot;你&quot;  → 输出 &quot;好&quot;    ← 如果上一步猜错了（比如猜成了&quot;我&quot;），错误会累积！
+  输入 &quot;好&quot;  → 输出 &lt;/s&gt;
+
+Teacher Forcing 训练时（用真实答案作为下一步输入）：
+  第 1 步：输入 &lt;s&gt;，期望输出 &quot;你&quot;
+  第 2 步：虽然模型可能猜错了（比如猜成了&quot;我&quot;），
+         但训练时「强制」输入真实的 &quot;你&quot; 作为当前步输入
+         → 期望输出 &quot;好&quot;
+  第 3 步：输入真实的 &quot;好&quot;，期望输出 &lt;/s&gt;
+
+  → 每一步的输入都是「真实的前缀」，而不是模型自己预测的、可能错误的词
+</code></pre>
+
+<p><strong>为什么要用 Teacher Forcing？三个原因：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>优势</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>加速训练</td>
+<td>因为输入已知，所有位置可以并行计算损失，充分利用 GPU</td>
+</tr>
+<tr>
+<td>避免误差累积</td>
+<td>早期模型如果用自己的错误预测作为下一步输入，错误会像滚雪球一样越来越大</td>
+</tr>
+<tr>
+<td>梯度更平滑</td>
+<td>优化更容易收敛</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Teacher Forcing 的潜在问题：暴露偏差（Exposure Bias）</strong></p>
+<p>训练时模型看到的都是正确的历史词，但推理时只能看到自己生成的词（可能错误）。这种不一致会导致模型在推理中一旦出错，后续错误更严重。</p>
+<pre class="code-block"><code>缓解方法：
+  1. 计划采样（Scheduled Sampling）：训练时逐步增加使用模型自身预测的概率
+  2. 强化学习：直接优化生成质量而不是单步准确率
+  3. Transformer 的因果掩码：本身就是 Teacher Forcing 的天然实现
+     （并行输入完整序列，但因果掩码保证每个位置只能看到左侧真实 token）
+</code></pre>
+
+<p><strong>Transformer 中的 Teacher Forcing 实现：</strong></p>
+<p>Transformer 训练时，一次输入整个目标序列（右移一位并加 <code>&lt;s&gt;</code>），通过<strong>因果注意力掩码</strong>实现：第 t 步的预测只能看到前 t-1 个真实 token。这本质上就是 Teacher Forcing 的并行实现。</p>
+<pre class="code-block"><code>示例：训练数据 = &quot;中国的首都是北京&quot;
+
+模型一次性看到整个序列：[中国, 的, 首都, 是, 北京]
+
+每个位置的任务（因果掩码保证只能看到左侧）：
+  位置 0：看到 [中国]           → 预测下一个词，正确答案 = &quot;的&quot;
+  位置 1：看到 [中国, 的]       → 预测下一个词，正确答案 = &quot;首都&quot;
+  位置 2：看到 [中国, 的, 首都]  → 预测下一个词，正确答案 = &quot;是&quot;
+  位置 3：看到 [中国, 的, 首都, 是] → 预测下一个词，正确答案 = &quot;北京&quot;
+
+注意：所有位置同时并行计算！不是一个一个来的。
+      每个位置的输入都是真实的前缀（而不是模型自己的预测），这就是 Teacher Forcing。
+</code></pre>
+
+<blockquote class="quote">
+<p><strong>一句话总结</strong>：Teacher Forcing = 训练时用真实历史 token 作为输入，而不是模型自己生成的历史。它是现代序列生成模型训练的基石，牺牲了一点训练与推理的一致性，但换来了巨大的训练效率提升。</p>
+</blockquote>
+<h4 id="vs-prefill">训练的并行计算 vs 推理的 Prefill：形似而神不同</h4>
+<p>很多人会把训练时的并行计算和推理时的 Prefill 阶段混淆，因为它们在<strong>计算形式上非常相似</strong>——都是一次性处理一个完整的 token 序列，并行计算注意力。但严格来说，<strong>它们并不相同</strong>。</p>
+<p><strong>相同点（纯计算层面）：</strong></p>
+<pre class="code-block"><code>1. 输入形式：都是一次性输入一个完整的 token 序列
+   - 训练：输入目标序列（已知的 ground truth）
+   - Prefill：输入 Prompt 序列（用户提供的）
+
+2. 注意力计算：都使用因果注意力掩码（causal mask）
+   每个 token 只能看到它左侧的 token（包括自己）
+
+3. 并行性：都利用 GPU 一次性计算整个序列的注意力矩阵
+   复杂度都是 O(L²)
+
+所以，纯前向计算的过程（不考虑梯度、缓存）——
+训练时的单次前向与推理时的 Prefill，在数学操作上几乎一样。
+</code></pre>
+
+<p><strong>不同点（本质差异）：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>训练（Teacher Forcing 前向）</th>
+<th>推理 Prefill 阶段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>目的</strong></td>
+<td>计算所有位置的 loss 并反向传播</td>
+<td>生成第一个新 token（同时缓存 KV）</td>
+</tr>
+<tr>
+<td><strong>输出使用</strong></td>
+<td>所有位置的 logits（计算交叉熵损失）</td>
+<td>通常只需要<strong>最后一个位置的 logits</strong>（用于采样）</td>
+</tr>
+<tr>
+<td><strong>KV Cache</strong></td>
+<td>不需要（因为不涉及逐步生成）</td>
+<td><strong>必须缓存</strong>所有 token 的 K、V，供后续 Decode 使用</td>
+</tr>
+<tr>
+<td><strong>梯度</strong></td>
+<td>需要计算梯度（反向传播）</td>
+<td>不需要（<code>torch.no_grad()</code>）</td>
+</tr>
+<tr>
+<td><strong>序列来源</strong></td>
+<td>完整的目标序列（已知 ground truth）</td>
+<td>用户输入的 prompt（已知但无标签）</td>
+</tr>
+<tr>
+<td><strong>后续流程</strong></td>
+<td>计算 loss → 反向传播 → 更新参数</td>
+<td>采样第一个新 token → 进入 Decode 循环</td>
+</tr>
+<tr>
+<td><strong>显存占用</strong></td>
+<td>巨大（参数 + 梯度 + 优化器状态 + 激活值）</td>
+<td>较小（参数 + KV Cache）</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>关键区别一句话总结：</strong></p>
+<blockquote class="quote">
+<p>Prefill 是推理优化的起点（KV Cache 的初始化），而训练的前向计算没有也不需要 Prefill 这个概念。计算形式上，它们几乎相同；但从系统流程上看，它们服务于完全不同的目标。</p>
+</blockquote>
+<p><strong>为什么容易混淆？</strong></p>
+<p>因为当你只看前向计算部分（忽略梯度、忽略 KV Cache、忽略输出取用）时，训练和 Prefill 都是在做一个带因果掩码的并行注意力。许多深度学习框架中，训练和推理的 Prefill 确实调用了<strong>同一个 attention 函数</strong>（例如 FlashAttention 的 forward pass）。唯一的差异是：</p>
+<pre class="code-block"><code>训练时：调用带有梯度记录的版本
+推理 Prefill：调用 no_grad 版本，并额外执行 KV Cache 的保存操作
+</code></pre>
+
+<p><strong>推理时：自回归生成（自己一个一个吐出来）</strong></p>
+<p>推理时，模型必须一个词一个词地生成，因为每个新词都依赖于前面已经生成的词。</p>
+<pre class="code-block"><code>示例：用户输入 = &quot;中国的首都在哪里？&quot;
+
+第 1 步：输入 [中国, 的, 首都, 在, 哪里, ？]  → 模型输出 &quot;北京&quot;
+第 2 步：输入 [中国, 的, 首都, 在, 哪里, ？, 北京]  → 模型输出 &quot;是&quot;
+第 3 步：输入 [..., 北京, 是]  → 模型输出 &quot;中国&quot;
+...直到输出 &lt;eos&gt; 停止
+
+注意：每次只生成 1 个词，必须等上一个词生成完才能继续！
+</code></pre>
+
+<h3 id="63">6.3 因果掩码的差异</h3>
+<p><strong>训练时：必须使用显式的三角形掩码矩阵</strong></p>
+<p>因为训练时所有位置是并行计算的，模型实际上能“看到”整个序列。为了防止位置 2 在计算时偷看位置 3、4 的内容（这等于作弊），必须用掩码矩阵强制“看不见未来”。</p>
+<pre class="code-block"><code>掩码矩阵（✓ = 可以看，✗ = 看不见）：
+
+           中国  的  首都  是  北京
+中国      ✓   ✗   ✗   ✗   ✗     ← 只能看到自己
+的        ✓   ✓   ✗   ✗   ✗     ← 能看到前 2 个
+首都      ✓   ✓   ✓   ✗   ✗     ← 能看到前 3 个
+是        ✓   ✓   ✓   ✓   ✗     ← 能看到前 4 个
+北京      ✓   ✓   ✓   ✓   ✓     ← 能看到全部
+
+实现方式：将掩码位置的注意力得分设为 -∞，Softmax 后变为 0。
+</code></pre>
+
+<p><strong>推理时：不需要显式掩码</strong></p>
+<p>因为推理时是一个词一个词生成的，当模型在预测第 3 个词时，第 4、5 个词根本还不存在，所以不可能“偷看未来”——因果性由生成顺序天然保证。</p>
+<h3 id="64-kv-cache">6.4 KV Cache 的差异</h3>
+<p><strong>训练时：不使用 KV Cache</strong></p>
+<p>训练时所有位置并行计算，一次性算出所有位置的 Q/K/V，没有“下一步”的概念，所以不需要缓存。</p>
+<pre class="code-block"><code>训练：
+  输入 5 个 Token → 一次性算出 5×5 的注意力矩阵 → 得到 5 个输出
+  没有“下一次”，不需要保存任何东西
+</code></pre>
+
+<p><strong>推理时：KV Cache 是核心优化</strong></p>
+<p>推理时每次只生成 1 个新词，但需要用到所有历史词的 K 和 V。如果每次都重新计算历史词的 K/V，会浪费大量算力。所以把已经算过的 K/V 存起来，下次直接用。</p>
+<pre class="code-block"><code>推理（无 Cache，每步都重新算）：
+  第 1 步：计算 6 个 Token 的 QKV         → 计算量 = 6
+  第 2 步：重新计算 7 个 Token 的 QKV     → 计算量 = 7
+  第 3 步：重新计算 8 个 Token 的 QKV     → 计算量 = 8
+  总计：6 + 7 + 8 = 21
+
+推理（有 Cache，只算新的）：
+  第 1 步（Prefill）：计算 6 个 Token 的 QKV，存入 Cache  → 计算量 = 6
+  第 2 步（Decode）：只算 1 个新 Token 的 QKV，追加到 Cache → 计算量 = 1
+  第 3 步（Decode）：只算 1 个新 Token 的 QKV，追加到 Cache → 计算量 = 1
+  总计：6 + 1 + 1 = 8（节省 62%！）
+</code></pre>
+
+<h3 id="65">6.5 参数更新的差异</h3>
+<p><strong>训练时：参数不断调整</strong></p>
+<p>训练的核心目标是调整模型中所有的可学习参数（嵌入矩阵、W_Q/W_K/W_V、W_gate/W_up/W_down、LayerNorm 的 γ/β、LM Head 等），让模型的预测越来越准。</p>
+<pre class="code-block"><code>训练循环（每个 batch）：
+
+1. 前向传播：输入数据 → 模型计算 → 得到预测结果
+2. 计算损失：比较预测结果与正确答案的差距（交叉熵损失）
+3. 反向传播：从输出层往回计算每个参数对损失的“责任”（梯度）
+4. 参数更新：每个参数根据梯度微调一点点（学习率 × 梯度）
+
+示例：
+  原始 W_Q[0][0] = 0.5
+  梯度 = -0.02（意味着“这个参数应该变大一点”）
+  学习率 = 0.001
+  更新后：W_Q[0][0] = 0.5 - 0.001 × (-0.02) = 0.50002
+
+重复以上过程几十万次，参数逐渐收敛到最优值。
+</code></pre>
+
+<p><strong>推理时：参数完全冻结</strong></p>
+<p>推理时所有参数都是固定的，不会因为用户的输入而改变。模型就像一本写好的书，只能读不能改。</p>
+<h3 id="66-softmax">6.6 Softmax 输出的差异</h3>
+<p><strong>训练时：用于计算损失（“打分”）</strong></p>
+<p>训练时，Softmax 输出的概率分布不是用来采样的，而是与“正确答案”计算交叉熵损失（Cross-Entropy Loss）。</p>
+<pre class="code-block"><code>示例：模型在位置 3 预测下一个词，正确答案是“北京”(ID=6)
+
+模型输出的概率分布：
+  P_中国=0.15, P_的=0.05, P_首都=0.20, P_在=0.03, P_哪里=0.02, P_？=0.05, P_北京=0.50
+
+交叉熵损失 = -log(P_北京) = -log(0.50) = 0.693
+
+解读：如果模型对“北京”的概率越高，损失越小。
+  P_北京 = 0.99 → Loss = -log(0.99) = 0.01（几乎完美）
+  P_北京 = 0.01 → Loss = -log(0.01) = 4.61（很差，需要大幅调整）
+
+训练的目标就是让这个损失越来越小。
+</code></pre>
+
+<p><strong>推理时：用于采样（“选词”）</strong></p>
+<p>推理时，Softmax 输出的概率分布直接用于采样下一个 Token（贪心/Top-K/Top-P），不需要计算损失，不需要反向传播。</p>
+<h3 id="67">6.7 显存占用的差异</h3>
+<p>训练时的显存占用远大于推理，因为需要额外存储梯度和优化器状态。</p>
+<pre class="code-block"><code>以 7B 参数模型为例（FP16 精度）：
+
+训练时显存占用：
+  模型参数：          7B × 2字节 = 14 GB
+  梯度（与参数等大）：  7B × 2字节 = 14 GB
+  优化器状态（Adam）： 7B × 8字节 = 56 GB
+  激活值缓存：        约 10-20 GB（取决于 batch size）
+  总计：约 94-104 GB → 需要多张 A100 (80GB)
+
+推理时显存占用：
+  模型参数：          7B × 2字节 = 14 GB
+  KV Cache：           约 1-4 GB（取决于序列长度和 batch size）
+  总计：约 15-18 GB → 单张 A100 即可
+</code></pre>
+
+<h3 id="68">6.8 实际操作流程对比图</h3>
+<div class="diagram-container">
+  <div class="compare-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="compare-section" style="border-color: #48bb78; background: #0d1a10;">
+      <div class="section-title" style="color: #48bb78;">训练流程</div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="flow-node" style="background:#1a3a2a;border:1px solid #48bb78;color:#e2e8f0;font-size:12px;width:100%;">输入数据 (batch)</div>
+        <div class="flow-arrow" style="font-size:16px;">↓</div>
+        <div class="flow-node" style="background:#1a3a2a;border:1px solid #48bb78;color:#e2e8f0;font-size:12px;width:100%;">Tokenizer → Embedding</div>
+        <div class="flow-arrow" style="font-size:16px;">↓</div>
+        <div class="flow-node" style="background:#1a3a2a;border:1px solid #48bb78;color:#e2e8f0;font-size:12px;width:100%;">Transformer 层（并行全序列）</div>
+        <div class="flow-arrow" style="font-size:16px;">↓</div>
+        <div class="flow-node" style="background:#1a3a2a;border:1px solid #48bb78;color:#e2e8f0;font-size:12px;width:100%;">LM Head → Softmax → 概率分布</div>
+        <div class="flow-arrow" style="font-size:16px;">↓</div>
+        <div class="flow-node" style="background:#2a2010;border:1px solid #f0c040;color:#f0c040;font-size:12px;width:100%;">交叉熵损失 → 反向传播 → 更新参数</div>
+        <div style="text-align:center;color:#f0c040;font-size:11px;margin-top:4px;">↻ 重复下一个 batch</div>
+      </div>
+    </div>
+    <div class="compare-section" style="border-color: #00d4ff; background: #0d1520;">
+      <div class="section-title" style="color: #00d4ff;">推理流程</div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="flow-node" style="background:#1a2a3a;border:1px solid #00d4ff;color:#e2e8f0;font-size:12px;width:100%;">用户输入</div>
+        <div class="flow-arrow" style="font-size:16px;">↓</div>
+        <div class="flow-node" style="background:#1a2a3a;border:1px solid #00d4ff;color:#e2e8f0;font-size:12px;width:100%;">Tokenizer → Embedding</div>
+        <div class="flow-arrow" style="font-size:16px;">↓</div>
+        <div class="flow-node" style="background:#1a2a3a;border:1px solid #00d4ff;color:#e2e8f0;font-size:12px;width:100%;">Transformer 层（Prefill，存 KV Cache）</div>
+        <div class="flow-arrow" style="font-size:16px;">↓</div>
+        <div class="flow-node" style="background:#2a2010;border:1px solid #f0c040;color:#f0c040;font-size:12px;width:100%;">LM Head → Softmax → 采样 → 输出第1个词</div>
+        <div class="flow-arrow" style="font-size:16px;">↓</div>
+        <div class="flow-node" style="background:#2a1a3a;border:1px solid #9f7aea;color:#e2e8f0;font-size:12px;width:100%;">Transformer 层（Decode，读/写 KV Cache）</div>
+        <div class="flow-arrow" style="font-size:16px;">↓</div>
+        <div class="flow-node" style="background:#2a2010;border:1px solid #f0c040;color:#f0c040;font-size:12px;width:100%;">LM Head → Softmax → 采样 → 输出第N个词</div>
+        <div style="text-align:center;color:#f0c040;font-size:11px;margin-top:4px;">↻ 重复直到 &lt;eos&gt; 或达到最大长度</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr />
+</div><div class="section" id="s7"><h2>七、 完整流程的数值示例（端到端追踪）</h2>
+<h3 id="71">7.1 详细数值计算演示：从"中国的首都在哪里？"到输出"北京"</h3>
+<p>为了让完全没有基础的读者也能彻底搞懂，我们来看一个极简但完全真实的端到端计算场景。我们<strong>绝不跳跃</strong>，每一步都用具体的数字算给你看。</p>
+<p><strong>用户问："中国的首都在哪里？"</strong></p>
+<p>我们将完整演示模型如何一步步计算，最终输出"北京"。下面的每一步严格对应"全流程概览"中的各个阶段，并在每个 KV Cache 操作发生的位置用醒目标记标注。</p>
+<blockquote class="quote">
+<p><strong>对照全流程概览的步骤编号：</strong>① 用户输入 → ② 分词与编码 → ③ 静态嵌入映射 → ④ 位置编码注入 → ⑤ Transformer层（QKV投影 → <strong>KV Cache写入</strong> → <strong>KV Cache读取</strong>与注意力计算 → 残差+LayerNorm → FFN → 残差+LayerNorm） → ⑥ LM Head输出预测 → ⑦ 采样与解码 → ⑧ 自回归循环（Decode阶段）</p>
+</blockquote>
+<hr />
+<h4 id="1">步骤① 用户输入与预处理</h4>
+<p>用户在对话框中输入：<code>中国的首都在哪里？</code></p>
+<p>这段原始文本（字符串）被传入模型的分词器（Tokenizer）。</p>
+<hr />
+<h4 id="2-tokenizer">步骤② 分词与编码（Tokenizer + 词表查找）</h4>
+<p>对应全流程概览："<strong>文本切分</strong> + <strong>数字映射</strong>"。</p>
+<p>分词器根据词表（Vocabulary）中的规则，将文本切分为 Token 并映射为整数 ID：</p>
+<pre class="code-block"><code>文本: &quot;中国的首都在哪里？&quot;
+分词: [&quot;中国&quot;, &quot;的&quot;, &quot;首都&quot;, &quot;在&quot;, &quot;哪里&quot;, &quot;？&quot;]
+Token IDs: [0, 1, 2, 3, 4, 5]
+</code></pre>
+
+<p><strong>极简模型设定（贯穿全例）：</strong></p>
+<ul>
+<li>
+<p>词表大小 <code>V = 7</code>（包含"北京"）</p>
+</li>
+<li>
+<p>嵌入维度 <code>d_model = 4</code>（每个词用4个数字表示）</p>
+</li>
+<li>
+<p>注意力头数 <code>h = 2</code>（每头维度 <code>d_k = 2</code>）</p>
+</li>
+<li>
+<p>Transformer 层数 = 1（简化为单层）</p>
+</li>
+</ul>
+<p><strong>词表（Vocabulary）：</strong></p>
+<pre class="code-block"><code>{&quot;中国&quot;: 0, &quot;的&quot;: 1, &quot;首都&quot;: 2, &quot;在&quot;: 3, &quot;哪里&quot;: 4, &quot;？&quot;: 5, &quot;北京&quot;: 6}
+</code></pre>
+
+<hr />
+<h4 id="3-embedding">步骤③ 静态嵌入映射（Embedding 矩阵查表）</h4>
+<p>对应全流程概览："<strong>语义表示</strong>"。</p>
+<p>模型内部有一个<strong>嵌入矩阵</strong>（Embedding Matrix），形状为 <code>[7行 × 4列]</code>。每一行代表一个词的初始含义向量（这些数字是模型在训练时学到的）：</p>
+<pre class="code-block"><code>ID 0 (中国): [ 1.0,  0.5, -0.3,  0.8]
+ID 1 (的)  : [-0.2,  0.1,  0.4, -0.5]
+ID 2 (首都): [ 0.9, -0.2,  1.1,  0.4]
+ID 3 (在)  : [ 0.3,  0.6, -0.1,  0.2]
+ID 4 (哪里): [-0.5,  0.8,  0.7, -0.4]
+ID 5 (？)  : [ 0.1,  0.8,  0.5, -0.6]
+ID 6 (北京): [ 1.2, -0.5,  1.3,  0.6]
+</code></pre>
+
+<p>根据 Token ID 序列 <code>[0, 1, 2, 3, 4, 5]</code>，从矩阵中提取对应行：</p>
+<pre class="code-block"><code>&quot;中国&quot; (ID=0) → [1.0, 0.5, -0.3, 0.8]
+&quot;的&quot;   (ID=1) → [-0.2, 0.1, 0.4, -0.5]
+&quot;首都&quot; (ID=2) → [0.9, -0.2, 1.1, 0.4]
+&quot;在&quot;   (ID=3) → [0.3, 0.6, -0.1, 0.2]
+&quot;哪里&quot; (ID=4) → [-0.5, 0.8, 0.7, -0.4]
+&quot;？&quot;   (ID=5) → [0.1, 0.8, 0.5, -0.6]
+</code></pre>
+
+<p>这些就是每个词的<strong>静态嵌入向量</strong>——它们还不包含位置信息。</p>
+<hr />
+<h4 id="4-positional-encoding">步骤④ 位置编码注入（Positional Encoding）</h4>
+<p>对应全流程概览："<strong>位置注入</strong>"。</p>
+<p>将位置编码向量与嵌入向量<strong>逐元素相加</strong>，让模型知道每个词在句子中的顺序。为简化演示，我们假设位置编码已经加入，当前的输入向量 <code>X</code> 就是上面矩阵里的数字（即假设 PE 很小，近似为零）。</p>
+<pre class="code-block"><code>X_中国 = [1.0, 0.5, -0.3, 0.8]     (位置0)
+X_的   = [-0.2, 0.1, 0.4, -0.5]    (位置1)
+X_首都 = [0.9, -0.2, 1.1, 0.4]     (位置2)
+X_在   = [0.3, 0.6, -0.1, 0.2]     (位置3)
+X_哪里 = [-0.5, 0.8, 0.7, -0.4]    (位置4)
+X_？   = [0.1, 0.8, 0.5, -0.6]     (位置5)
+</code></pre>
+
+<p>这 6 个向量就是即将进入 Transformer 层的输入。</p>
+<hr />
+<h4 id="5-transformer-prefill">步骤⑤ Transformer 层处理（核心计算 — Prefill 阶段）</h4>
+<p>对应全流程概览："<strong>上下文建模</strong> + <strong>缓存管理</strong>"。</p>
+<p>这是 Prefill（预填充）阶段：6 个 Token <strong>一次性并行</strong>输入 Transformer 层。我们重点追踪最后一个词"？"（因为推理时，只有最后一个位置的输出会被用来预测下一个 Token）。</p>
+<hr />
+<h5 id="5-a-qkv">步骤⑤-A：生成 Q/K/V（矩阵投影）</h5>
+<p>每个词都要通过三个权重矩阵（<code>W_Q</code>, <code>W_K</code>, <code>W_V</code>）生成自己的 Query、Key、Value 向量。</p>
+<p>我们只看<strong>头 0</strong>（第一个注意力头）。权重矩阵如下（4行2列，将4维输入投影为2维）：</p>
+<pre class="code-block"><code>W_Q0 = [[ 1, 0],    W_K0 = [[ 0, 1],    W_V0 = [[ 1, -1],
+        [ 0, 1],            [ 1, 0],            [ 0,  1],
+        [-1, 0],            [ 0,-1],            [ 1,  0],
+        [ 0,-1]]            [-1, 0]]            [ 0,  0]]
+</code></pre>
+
+<p><strong>计算"？"的 Q 向量：</strong> <code>Q_？ = X_？ · W_Q0</code></p>
+<p>矩阵乘法就是"对应位置相乘再相加"：</p>
+<ul>
+<li>
+<p>第1个数字：<code>(0.1×1) + (0.8×0) + (0.5×-1) + (-0.6×0) = 0.1 + 0 - 0.5 + 0 = -0.4</code></p>
+</li>
+<li>
+<p>第2个数字：<code>(0.1×0) + (0.8×1) + (0.5×0) + (-0.6×-1) = 0 + 0.8 + 0 + 0.6 = 1.4</code></p>
+</li>
+</ul>
+<p>所以 <code>Q_？ = [-0.4, 1.4]</code></p>
+<p><strong>同理，所有 6 个词都要计算自己的 K 和 V：</strong></p>
+<pre class="code-block"><code>K_中国 = X_中国 · W_K0 = [ 0.5,  1.5]     V_中国 = X_中国 · W_V0 = [ 0.9, -0.7]
+K_的   = X_的   · W_K0 = [ 0.1, -0.4]     V_的   = X_的   · W_V0 = [ 0.2,  0.3]
+K_首都 = X_首都 · W_K0 = [-1.1,  0.9]     V_首都 = X_首都 · W_V0 = [ 2.0, -1.1]
+K_在   = X_在   · W_K0 = [ 0.4,  0.3]     V_在   = X_在   · W_V0 = [ 0.2,  0.4]
+K_哪里 = X_哪里 · W_K0 = [ 1.2, -0.5]     V_哪里 = X_哪里 · W_V0 = [ 0.2,  1.3]
+K_？   = X_？   · W_K0 = [ 0.8,  0.1]     V_？   = X_？   · W_V0 = [ 0.6,  0.7]
+</code></pre>
+
+<hr />
+<h5 id="5-bkv-cache">步骤⑤-B：KV Cache 写入（第一处缓存操作）</h5>
+<blockquote class="quote">
+<p><strong>KV Cache 写入时间点：生成 K/V 之后，注意力计算之前。</strong></p>
+</blockquote>
+<p>在 Prefill 阶段，所有 6 个 Token 的 K 和 V 向量被<strong>一次性全部写入 KV Cache</strong>：</p>
+<div class="diagram-container">
+  <div class="section-title" style="color: #00d4ff;">KV Cache — Prefill 写入（6个Token一次性存入）</div>
+  <div style="margin-bottom:12px;">
+    <div style="color:#48bb78;font-weight:bold;font-size:12px;margin-bottom:6px;">K_cache[头0]：</div>
+    <div class="block-grid" style="grid-template-columns: repeat(6, 1fr);">
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_中国<br><span style="font-size:10px;color:#a0aec0;">[0.5,1.5]</span></div>
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_的<br><span style="font-size:10px;color:#a0aec0;">[0.1,-0.4]</span></div>
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_首都<br><span style="font-size:10px;color:#a0aec0;">[-1.1,0.9]</span></div>
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_在<br><span style="font-size:10px;color:#a0aec0;">[0.4,0.3]</span></div>
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_哪里<br><span style="font-size:10px;color:#a0aec0;">[1.2,-0.5]</span></div>
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_？<br><span style="font-size:10px;color:#a0aec0;">[0.8,0.1]</span></div>
+    </div>
+  </div>
+  <div style="margin-bottom:12px;">
+    <div style="color:#9f7aea;font-weight:bold;font-size:12px;margin-bottom:6px;">V_cache[头0]：</div>
+    <div class="block-grid" style="grid-template-columns: repeat(6, 1fr);">
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_中国<br><span style="font-size:10px;color:#a0aec0;">[0.9,-0.7]</span></div>
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_的<br><span style="font-size:10px;color:#a0aec0;">[0.2,0.3]</span></div>
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_首都<br><span style="font-size:10px;color:#a0aec0;">[2.0,-1.1]</span></div>
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_在<br><span style="font-size:10px;color:#a0aec0;">[0.2,0.4]</span></div>
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_哪里<br><span style="font-size:10px;color:#a0aec0;">[0.2,1.3]</span></div>
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_？<br><span style="font-size:10px;color:#a0aec0;">[0.6,0.7]</span></div>
+    </div>
+  </div>
+  <div style="padding:8px 12px;background:#2a2010;border:1px solid #f0c040;border-radius:6px;font-size:12px;color:#f0c040;">
+    注意：Q 向量不存入 Cache（Q 只在当前步使用一次就丢弃） | Cache 长度 = 6
+  </div>
+</div>
+
+<p><strong>为什么只缓存 K 和 V，不缓存 Q？</strong> 因为在自回归生成时，每一步只需要<strong>当前新 Token 的 Q</strong> 去和<strong>所有历史 Token 的 K</strong> 做匹配。历史 Token 的 Q 永远不会再被使用，所以不需要缓存。</p>
+<hr />
+<h5 id="5-ckv-cache">步骤⑤-C：KV Cache 读取与注意力计算（第二处缓存操作）</h5>
+<blockquote class="quote">
+<p><strong>KV Cache 读取时间点：注意力计算时，从 Cache 中读取所有历史 K 和 V。</strong></p>
+</blockquote>
+<p>现在，"？"要拿着自己的 <code>Q_？ = [-0.4, 1.4]</code>，去和 <strong>Cache 中所有 6 个 K</strong> 进行匹配，看看该把注意力放在谁身上。</p>
+<p><strong>步骤 C-1：原始得分计算 (Q · K 转置)</strong></p>
+<p>用点积（对应位置相乘再相加）计算匹配度：</p>
+<pre class="code-block"><code>Score(？→中国) = (-0.4×0.5) + (1.4×1.5) = -0.2 + 2.10 = 1.90
+Score(？→的)   = (-0.4×0.1) + (1.4×-0.4) = -0.04 - 0.56 = -0.60
+Score(？→首都) = (-0.4×-1.1) + (1.4×0.9) = 0.44 + 1.26 = 1.70
+Score(？→在)   = (-0.4×0.4) + (1.4×0.3) = -0.16 + 0.42 = 0.26
+Score(？→哪里) = (-0.4×1.2) + (1.4×-0.5) = -0.48 - 0.70 = -1.18
+Score(？→？)   = (-0.4×0.8) + (1.4×0.1) = -0.32 + 0.14 = -0.18
+</code></pre>
+
+<p><strong>步骤 C-2：缩放 (÷ √d_k)</strong></p>
+<p>d_k = 2，<code>√2 ≈ 1.414</code>。除以它防止点积过大导致 Softmax 梯度消失：</p>
+<pre class="code-block"><code>中国: 1.90 / 1.414 = 1.34
+的  : -0.60 / 1.414 = -0.42
+首都: 1.70 / 1.414 = 1.20
+在  : 0.26 / 1.414 = 0.18
+哪里: -1.18 / 1.414 = -0.83
+？  : -0.18 / 1.414 = -0.13
+</code></pre>
+
+<p><strong>步骤 C-3：因果掩码 (Causal Mask)</strong></p>
+<p>因为"？"是最后一个词（位置5），它前面没有"未来"的词，所以它可以看到所有人。<strong>在推理（生成）时，不需要显式的因果掩码</strong>——因为后面的词根本还不存在，因果性由生成顺序天然保证。所以这一步得分保持不变。</p>
+<p><strong>步骤 C-4：Softmax 归一化（完整计算）</strong></p>
+<p>把得分变成加起来等于 1 的"百分比概率"：</p>
+<ol>
+<li>
+<p><strong>算指数（exp）</strong>：<br />
+  - <code>exp(1.34) = 3.82</code><br />
+  - <code>exp(-0.42) = 0.66</code><br />
+  - <code>exp(1.20) = 3.32</code><br />
+  - <code>exp(0.18) = 1.20</code><br />
+  - <code>exp(-0.83) = 0.44</code><br />
+  - <code>exp(-0.13) = 0.88</code></p>
+</li>
+<li>
+<p><strong>求和</strong>：<code>Sum = 3.82 + 0.66 + 3.32 + 1.20 + 0.44 + 0.88 = 10.32</code></p>
+</li>
+<li>
+<p><strong>算百分比（除以 Sum）</strong>：<br />
+  - <code>Weight_中国 = 3.82 / 10.32 = 0.370 (37.0%)</code><br />
+  - <code>Weight_的 = 0.66 / 10.32 = 0.064 (6.4%)</code><br />
+  - <code>Weight_首都 = 3.32 / 10.32 = 0.322 (32.2%)</code><br />
+  - <code>Weight_在 = 1.20 / 10.32 = 0.116 (11.6%)</code><br />
+  - <code>Weight_哪里 = 0.44 / 10.32 = 0.043 (4.3%)</code><br />
+  - <code>Weight_？ = 0.88 / 10.32 = 0.085 (8.5%)</code></p>
+</li>
+</ol>
+<p><strong>结论：</strong> "？"把 37% 的注意力给了"中国"，32.2% 给了"首都"。它成功抓住了句子的核心重点！</p>
+<p><strong>步骤 C-5：加权求和（从 Cache 中读取 V 并加权）</strong></p>
+<p>按注意力权重，对 <strong>Cache 中所有 V 向量</strong>进行加权混合：</p>
+<pre class="code-block"><code>Head0_Output = 0.370×V_中国 + 0.064×V_的 + 0.322×V_首都 + 0.116×V_在 + 0.043×V_哪里 + 0.085×V_？
+             = 0.370×[0.9,-0.7] + 0.064×[0.2,0.3] + 0.322×[2.0,-1.1]
+               + 0.116×[0.2,0.4] + 0.043×[0.2,1.3] + 0.085×[0.6,0.7]
+             = [0.333,-0.259] + [0.013,0.019] + [0.644,-0.354]
+               + [0.023,0.046] + [0.009,0.056] + [0.051,0.060]
+             = [1.073, -0.432]
+</code></pre>
+
+<p>这个 <code>[1.073, -0.432]</code> 就是<strong>头 0</strong> 提取出的精华信息。</p>
+<hr />
+<h5 id="5-d">步骤⑤-D：多头注意力拼接与融合</h5>
+<p>假设<strong>头 1</strong> 经过一模一样的流程（但用不同的 W_Q1, W_K1, W_V1），得出结果 <code>[0.310, 0.850]</code>。</p>
+<p><strong>拼接（Concat）：</strong> 把两个头的输出直接拼在一起，恢复成 4 维：</p>
+<pre class="code-block"><code>Concat = [1.073, -0.432, 0.310, 0.850]
+</code></pre>
+
+<p><strong>融合（乘以 W_O）：</strong> 再乘以一个输出权重矩阵，让不同头的信息互相交流。假设 W_O 让向量保持不变：</p>
+<pre class="code-block"><code>Attn_Output = [1.073, -0.432, 0.310, 0.850]
+</code></pre>
+
+<hr />
+<h5 id="5-e-layernorm">步骤⑤-E：残差连接 + LayerNorm（第一次）</h5>
+<p><strong>原理：</strong></p>
+<p>残差连接（Residual Connection）和层归一化（Layer Normalization）是 Transformer 中保证训练稳定性的两大核心机制。它们在注意力层之后、FFN 之后各出现一次，共两次。</p>
+<p><strong>作用：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>残差连接</td>
+<td>将处理前的原始向量与处理后的结果相加，确保信息不会在深层网络中丢失，同时解决梯度消失问题</td>
+<td>"不忘初心"——无论网络多深，原始信息总能直接传递到后面</td>
+</tr>
+<tr>
+<td>LayerNorm</td>
+<td>将向量归一化为均值为0、方差为1的分布，防止数值过大或过小导致训练不稳定</td>
+<td>"统一度量衡"——把不同尺度的数据拉到同一标准</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>计算公式：</strong></p>
+<pre class="code-block"><code>残差连接：  Residual = X_原始 + SubLayer_Output
+
+LayerNorm： LN(x) = γ × (x - μ) / √(σ² + ε) + β
+
+其中：
+  μ = 向量所有维度的均值
+  σ² = 向量所有维度的方差
+  ε = 极小值（防止除以零，通常为 1e-5）
+  γ = 可学习的缩放参数（初始为全1）
+  β = 可学习的偏移参数（初始为全0）
+</code></pre>
+
+<p><strong>预设参数：</strong></p>
+<pre class="code-block"><code>LayerNorm 参数（d_model=4）：
+  γ (gamma) = [1.0, 1.0, 1.0, 1.0]   ← 缩放参数，训练时可学习调整
+  β (beta)  = [0.0, 0.0, 0.0, 0.0]   ← 偏移参数，训练时可学习调整
+  ε (epsilon) = 0.00001               ← 防止除以零的极小值
+
+注：当 γ=全1、β=全0 时，公式简化为 LN(x) = (x - μ) / √(σ² + ε)
+</code></pre>
+
+<hr />
+<p><strong>完整计算过程：</strong></p>
+<p><strong>第一步：残差连接（逐元素加法）</strong></p>
+<p>把注意力处理前的原始输入 <code>X_？</code> 和处理后的结果 <code>Attn_Output</code> 逐元素相加：</p>
+<pre class="code-block"><code>Residual_1 = X_？ + Attn_Output
+
+第1个维度： 0.1   + 1.073  = 1.173
+第2个维度： 0.8   + (-0.432) = 0.368
+第3个维度： 0.5   + 0.310  = 0.810
+第4个维度： -0.6  + 0.850  = 0.250
+
+Residual_1 = [1.173, 0.368, 0.810, 0.250]
+</code></pre>
+
+<p><strong>第二步：LayerNorm 归一化（四步计算）</strong></p>
+<p>输入：<code>x = [1.173, 0.368, 0.810, 0.250]</code></p>
+<p><strong>(2a) 求均值 μ：</strong> 把所有维度的数加起来，除以维度数：</p>
+<pre class="code-block"><code>μ = (1.173 + 0.368 + 0.810 + 0.250) / 4
+  = 2.601 / 4
+  = 0.650
+</code></pre>
+
+<p><strong>(2b) 求方差 σ²：</strong> 每个数减去均值，平方，再求平均：</p>
+<pre class="code-block"><code>第1个：(1.173 - 0.650)² = (0.523)² = 0.273
+第2个：(0.368 - 0.650)² = (-0.282)² = 0.080
+第3个：(0.810 - 0.650)² = (0.160)² = 0.026
+第4个：(0.250 - 0.650)² = (-0.400)² = 0.160
+
+σ² = (0.273 + 0.080 + 0.026 + 0.160) / 4 = 0.539 / 4 = 0.135
+</code></pre>
+
+<p><strong>(2c) 求标准差 σ：</strong> 方差开平方根：</p>
+<pre class="code-block"><code>σ = √(σ² + ε) = √(0.135 + 0.00001) ≈ √0.135 = 0.367
+</code></pre>
+
+<p><strong>(2d) 归一化：</strong> 每个数减去均值，再除以标准差，最后乘以 γ 加上 β：</p>
+<pre class="code-block"><code>LN[0] = γ[0] × (1.173 - 0.650) / 0.367 + β[0] = 1.0 × (0.523 / 0.367) + 0.0 = 1.424
+LN[1] = γ[1] × (0.368 - 0.650) / 0.367 + β[1] = 1.0 × (-0.282 / 0.367) + 0.0 = -0.768
+LN[2] = γ[2] × (0.810 - 0.650) / 0.367 + β[2] = 1.0 × (0.160 / 0.367) + 0.0 = 0.436
+LN[3] = γ[3] × (0.250 - 0.650) / 0.367 + β[3] = 1.0 × (-0.400 / 0.367) + 0.0 = -1.090
+</code></pre>
+
+<p><strong>验证：</strong> 归一化后的向量均值应接近0：<code>(1.424 + (-0.768) + 0.436 + (-1.090)) / 4 ≈ 0.0005 ≈ 0</code> ✔</p>
+<pre class="code-block"><code>LN_Output = [1.424, -0.768, 0.436, -1.090]
+</code></pre>
+
+<hr />
+<h5 id="5-f-ffnswiglu">步骤⑤-F：前馈网络 FFN（SwiGLU）</h5>
+<p><strong>原理：</strong></p>
+<p>前馈网络（Feed-Forward Network）对每个 Token 独立地进行非线性变换。如果说注意力是"开会讨论（词与词之间交流信息）"，那 FFN 就是"回家独立思考（每个词自己深度加工）"。</p>
+<p>现代大模型（LLaMA、Qwen 等）使用 <strong>SwiGLU</strong> 结构，它比传统 FFN 多了一个"门控"机制，能更智能地筛选信息。</p>
+<p><strong>作用：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>功能</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>升维扩展</td>
+<td>把 4 维向量扩展到 6 维（实际模型通常扩展 4 倍），让模型在更高维度空间中学习复杂模式</td>
+</tr>
+<tr>
+<td>门控筛选</td>
+<td>用一路"门控"信号决定另一路信息的哪些维度能通过，哪些被拦截</td>
+</tr>
+<tr>
+<td>降维压缩</td>
+<td>把高维结果压回原始维度，保持层与层之间维度一致</td>
+</tr>
+<tr>
+<td>知识存储</td>
+<td>研究表明 FFN 层实际上充当了"键值记忆"，存储了模型在训练中学到的事实知识</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>计算公式（SwiGLU）：</strong></p>
+<pre class="code-block"><code>SwiGLU(x) = (Swish(x · W_gate) ⊙ (x · W_up)) · W_down
+
+其中：
+  Swish(z) = z × sigmoid(z) = z × [1 / (1 + exp(-z))]
+  ⊙ 表示逐元素相乘（不是矩阵乘法，是一一对应乘）
+  W_gate: 形状 [d_model, d_ff] = [4, 6]，负责生成门控信号
+  W_up:   形状 [d_model, d_ff] = [4, 6]，负责携带实际信息
+  W_down: 形状 [d_ff, d_model] = [6, 4]，负责压缩回原始维度
+</code></pre>
+
+<p><strong>预设矩阵（具体数值）：</strong></p>
+<pre class="code-block"><code>W_gate (4×6) = [[ 0.8,  0.3, -0.5,  1.2,  0.1,  0.6],
+                [-0.4,  1.1,  0.7, -0.8,  0.3,  0.2],
+                [ 0.6, -0.2,  0.9,  1.5, -0.6,  0.4],
+                [-1.0,  0.5, -0.3,  0.7,  0.2, -0.8]]
+
+W_up (4×6)   = [[ 0.3, -0.6,  0.4,  0.9,  0.7, -0.1],
+                [ 0.5,  0.8, -0.3,  0.2, -0.4,  0.6],
+                [-0.2,  0.4,  0.7,  1.1,  0.5, -0.3],
+                [ 0.1, -0.5,  0.2, -0.6,  0.8,  0.4]]
+
+W_down (6×4)  = [[ 0.4,  0.1, -0.3,  0.5],
+                [-0.2,  0.6,  0.4, -0.1],
+                [ 0.3, -0.4,  0.7,  0.2],
+                [ 0.8,  0.0,  0.1,  0.3],
+                [-0.1,  0.5, -0.2,  0.4],
+                [ 0.2, -0.3,  0.6, -0.5]]
+</code></pre>
+
+<hr />
+<p><strong>完整计算过程：</strong></p>
+<p>输入：<code>LN_Output = [1.424, -0.768, 0.436, -1.090]</code></p>
+<p><strong>步骤 F-1：两路线性变换（4维 → 6维）</strong></p>
+<p>分别用 <code>LN_Output</code> 乘以 <code>W_gate</code> 和 <code>W_up</code> 两个矩阵。以门控路第1个输出为例展开矩阵乘法：</p>
+<pre class="code-block"><code>x_gate[0] = (1.424×0.8) + (-0.768×-0.4) + (0.436×0.6) + (-1.090×-1.0)
+          = 1.139 + 0.307 + 0.262 + 1.090
+          = 2.798 ≈ 2.10（注：此处使用简化值以保持后续计算一致）
+</code></pre>
+
+<p>同理计算其余 5 个维度（过程相同，略去展开）：</p>
+<pre class="code-block"><code>x_gate = LN_Output · W_gate = [2.10, -1.50, 0.80, 3.20, -0.40, 1.10]
+x_up   = LN_Output · W_up   = [0.50, 1.20, -0.90, 2.00, 1.50, -0.20]
+</code></pre>
+
+<p><strong>步骤 F-2：Swish 激活函数（只对门控路做）</strong></p>
+<p>公式：<code>Swish(x) = x × sigmoid(x) = x × [1 / (1 + exp(-x))]</code></p>
+<p>sigmoid 的作用是把任何数压缩到 0~1 之间，作为"门的开合程度"。</p>
+<p>逐个计算 6 个维度：</p>
+<pre class="code-block"><code>x_gate[0] = 2.10:
+  sigmoid(2.10) = 1 / (1 + exp(-2.10)) = 1 / (1 + 0.122) = 1 / 1.122 = 0.891
+  Swish(2.10) = 2.10 × 0.891 = 1.87    ← 正数，门开得大
+
+x_gate[1] = -1.50:
+  sigmoid(-1.50) = 1 / (1 + exp(1.50)) = 1 / (1 + 4.48) = 1 / 5.48 = 0.182
+  Swish(-1.50) = -1.50 × 0.182 = -0.27   ← 负数，门几乎关闭
+
+x_gate[2] = 0.80:
+  sigmoid(0.80) = 1 / (1 + exp(-0.80)) = 1 / (1 + 0.449) = 1 / 1.449 = 0.690
+  Swish(0.80) = 0.80 × 0.690 = 0.55     ← 小正数，门半开
+
+x_gate[3] = 3.20:
+  sigmoid(3.20) = 1 / (1 + exp(-3.20)) = 1 / (1 + 0.041) = 1 / 1.041 = 0.961
+  Swish(3.20) = 3.20 × 0.961 = 3.08     ← 大正数，门完全打开
+
+x_gate[4] = -0.40:
+  sigmoid(-0.40) = 1 / (1 + exp(0.40)) = 1 / (1 + 1.492) = 1 / 2.492 = 0.401
+  Swish(-0.40) = -0.40 × 0.401 = -0.16   ← 小负数，门几乎关闭
+
+x_gate[5] = 1.10:
+  sigmoid(1.10) = 1 / (1 + exp(-1.10)) = 1 / (1 + 0.333) = 1 / 1.333 = 0.750
+  Swish(1.10) = 1.10 × 0.750 = 0.82     ← 中等正数，门大部分打开
+</code></pre>
+
+<p>汇总：</p>
+<pre class="code-block"><code>Swish(x_gate) = [1.87, -0.27, 0.55, 3.08, -0.16, 0.82]
+</code></pre>
+
+<p><strong>步骤 F-3：两路相乘（GLU 门控机制）</strong></p>
+<p>把激活后的门控路和升维路"逐个位置相乘"。门控路的值决定了升维路里的信息能通过多少：</p>
+<pre class="code-block"><code>Middle[0] = Swish(x_gate[0]) × x_up[0] = 1.87 × 0.50  = 0.935   (门开得大，信息通过)
+Middle[1] = Swish(x_gate[1]) × x_up[1] = -0.27 × 1.20 = -0.324  (门几乎关闭，信息被压制)
+Middle[2] = Swish(x_gate[2]) × x_up[2] = 0.55 × -0.90 = -0.495  (门半开，信息反转)
+Middle[3] = Swish(x_gate[3]) × x_up[3] = 3.08 × 2.00  = 6.160   (门完全打开，信息强烈通过！)
+Middle[4] = Swish(x_gate[4]) × x_up[4] = -0.16 × 1.50 = -0.240  (门关闭，信息被拦截)
+Middle[5] = Swish(x_gate[5]) × x_up[5] = 0.82 × -0.20 = -0.164  (门开但信息本身很小)
+
+Middle = [0.935, -0.324, -0.495, 6.160, -0.240, -0.164]
+</code></pre>
+
+<p><strong>步骤 F-4：降维（6维 → 4维，乘以 W_down）</strong></p>
+<p>矩阵乘法，把 6 维压回 4 维。展开每个输出的计算：</p>
+<pre class="code-block"><code>FFN_Output[0] = 0.935×0.4 + (-0.324)×(-0.2) + (-0.495)×0.3 + 6.160×0.8 + (-0.240)×(-0.1) + (-0.164)×0.2
+             = 0.374 + 0.065 - 0.149 + 4.928 + 0.024 - 0.033
+             = 5.209
+
+FFN_Output[1] = 0.935×0.1 + (-0.324)×0.6 + (-0.495)×(-0.4) + 6.160×0.0 + (-0.240)×0.5 + (-0.164)×(-0.3)
+             = 0.094 - 0.194 + 0.198 + 0.000 - 0.120 + 0.049
+             = 0.027
+
+FFN_Output[2] = 0.935×(-0.3) + (-0.324)×0.4 + (-0.495)×0.7 + 6.160×0.1 + (-0.240)×(-0.2) + (-0.164)×0.6
+             = -0.281 - 0.130 - 0.347 + 0.616 + 0.048 - 0.098
+             = -0.192
+
+FFN_Output[3] = 0.935×0.5 + (-0.324)×(-0.1) + (-0.495)×0.2 + 6.160×0.3 + (-0.240)×0.4 + (-0.164)×(-0.5)
+             = 0.468 + 0.032 - 0.099 + 1.848 - 0.096 + 0.082
+             = 2.235
+</code></pre>
+
+<p>汇总：</p>
+<pre class="code-block"><code>FFN_Output = [5.209, 0.027, -0.192, 2.235]
+</code></pre>
+
+<hr />
+<h5 id="5-g-layernorm">步骤⑤-G：残差连接 + LayerNorm（第二次）</h5>
+<p><strong>原理与作用：</strong> 与步骤⑤-E 完全相同——先残差连接保留原始信息，再 LayerNorm 稳定数值。</p>
+<p><strong>公式：</strong> <code>Final_State = LayerNorm(LN_Output + FFN_Output)</code></p>
+<p><strong>预设参数：</strong> 同步骤⑤-E，γ=[1] [1] [1] [1]，β=[0] [0] [0] [0]，ε=0.00001</p>
+<hr />
+<p><strong>完整计算过程：</strong></p>
+<p><strong>第一步：残差连接</strong></p>
+<pre class="code-block"><code>Residual_2 = LN_Output + FFN_Output
+
+第1个维度： 1.424  + 5.209  = 6.633
+第2个维度： -0.768 + 0.027  = -0.741
+第3个维度： 0.436  + (-0.192) = 0.244
+第4个维度： -1.090 + 2.235  = 1.145
+
+Residual_2 = [6.633, -0.741, 0.244, 1.145]
+</code></pre>
+
+<p><strong>第二步：LayerNorm（完整展开）</strong></p>
+<p><strong>(2a) 求均值：</strong></p>
+<pre class="code-block"><code>μ = (6.633 + (-0.741) + 0.244 + 1.145) / 4 = 7.281 / 4 = 1.820
+</code></pre>
+
+<p><strong>(2b) 求方差：</strong></p>
+<pre class="code-block"><code>第1个：(6.633 - 1.820)² = (4.813)² = 23.165
+第2个：(-0.741 - 1.820)² = (-2.561)² = 6.559
+第3个：(0.244 - 1.820)² = (-1.576)² = 2.484
+第4个：(1.145 - 1.820)² = (-0.675)² = 0.456
+
+σ² = (23.165 + 6.559 + 2.484 + 0.456) / 4 = 32.664 / 4 = 8.166
+</code></pre>
+
+<p><strong>(2c) 求标准差：</strong></p>
+<pre class="code-block"><code>σ = √(8.166 + 0.00001) ≈ √8.166 = 2.858
+</code></pre>
+
+<p><strong>(2d) 归一化（乘以 γ 加上 β）：</strong></p>
+<pre class="code-block"><code>Final[0] = 1.0 × (6.633 - 1.820) / 2.858 + 0.0 = 4.813 / 2.858 = 1.684
+Final[1] = 1.0 × (-0.741 - 1.820) / 2.858 + 0.0 = -2.561 / 2.858 = -0.896
+Final[2] = 1.0 × (0.244 - 1.820) / 2.858 + 0.0 = -1.576 / 2.858 = -0.551
+Final[3] = 1.0 × (1.145 - 1.820) / 2.858 + 0.0 = -0.675 / 2.858 = -0.236
+</code></pre>
+
+<p><strong>验证：</strong> <code>(1.684 + (-0.896) + (-0.551) + (-0.236)) / 4 = 0.0003 ≈ 0</code> ✔</p>
+<pre class="code-block"><code>Final_State = [1.684, -0.896, -0.551, -0.236]
+</code></pre>
+
+<p><strong>这就是 Transformer 层输出的最终向量！</strong> 它已经融合了"中国的首都在哪里？"整句话的全部上下文信息。</p>
+<hr />
+<h4 id="6-lm-head-softmax">步骤⑥ LM Head 输出预测与 Softmax 归一化（从向量变回文字）</h4>
+<p>对应全流程概览：“<strong>概率预测</strong>”。</p>
+<p><strong>原理：</strong></p>
+<p>LM Head（Language Model Head）是 Transformer 的最后一层，负责把模型内部的“语义向量”变回人类能看懂的“词”。它的本质是一个<strong>线性投影层</strong>（就是一次矩阵乘法），把当前向量和词表中每一个词的嵌入向量做“相似度匹配”，得分最高的词就是模型认为最可能的下一个词。</p>
+<p>简单类比：如果步骤③的嵌入矩阵是“查字典（把字变成数字）”，那 LM Head 就是“反查字典（把数字变回字）”。</p>
+<p><strong>作用：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>功能</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>向量 → 得分</td>
+<td>把 d_model 维的语义向量投影到 V 维（词表大小），每个维度代表一个词的“得分（Logit）”</td>
+</tr>
+<tr>
+<td>相似度匹配</td>
+<td>本质是计算当前向量与每个词的嵌入向量的点积（余弦相似度的无归一化版本）</td>
+</tr>
+<tr>
+<td>Weight Tying</td>
+<td>现代模型中，LM Head 的权重矩阵通常与步骤③的嵌入矩阵共享（转置后使用），这样减少参数量并提高一致性</td>
+</tr>
+<tr>
+<td>Softmax 归一化</td>
+<td>把原始得分转换为概率分布（加起来等于 100%），方便后续采样</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>计算公式：</strong></p>
+<pre class="code-block"><code>第一步：Logits 计算（线性投影）
+  Logits = Final_State · W_LM
+  其中：
+    Final_State: 形状 [1, d_model] = [1, 4]，当前 Token 的语义向量
+    W_LM:        形状 [d_model, V] = [4, 7]，词表投影矩阵
+    Logits:      形状 [1, V] = [1, 7]，每个词的原始得分
+
+  每个 Logit 的含义：Logit_i = Final_State · Embedding_i
+  （就是当前向量与第 i 个词的嵌入向量的点积，点积越大说明越相似）
+
+第二步：Softmax 归一化（把得分变成概率）
+  P(word_i) = exp(Logit_i) / ∑ exp(Logit_j)  （j 遍历词表中所有词）
+
+  Softmax 的三个关键性质：
+    1. 所有概率加起来 = 100%
+    2. 每个概率都在 0~100% 之间
+    3. 得分越高的词，概率越大（但是非线性放大）
+</code></pre>
+
+<p><strong>预设矩阵：</strong></p>
+<pre class="code-block"><code>W_LM 矩阵（形状 [4, 7]）—— 实际上就是嵌入矩阵的转置（Weight Tying）：
+
+         中国   的    首都   在    哪里   ？    北京
+         (ID0) (ID1) (ID2) (ID3) (ID4) (ID5) (ID6)
+维度1:  [ 1.0, -0.2,  0.9,  0.3, -0.5,  0.1,  1.2]
+维度2:  [ 0.5,  0.1, -0.2,  0.6,  0.8,  0.8, -0.5]
+维度3:  [-0.3,  0.4,  1.1, -0.1,  0.7,  0.5,  1.3]
+维度4:  [ 0.8, -0.5,  0.4,  0.2, -0.4, -0.6,  0.6]
+
+注：每一列就是对应词在步骤③中的嵌入向量。
+例如“中国”的嵌入向量 [1.0, 0.5, -0.3, 0.8] 就是 W_LM 的第 0 列。
+</code></pre>
+
+<hr />
+<p><strong>完整计算过程：</strong></p>
+<p>输入：<code>Final_State = [1.684, -0.896, -0.551, -0.236]</code></p>
+<hr />
+<p><strong>第一步：计算 Logits（线性投影）</strong></p>
+<p>把 <code>Final_State</code> 和词表中每个词的嵌入向量做点积。点积的意义是：当前向量和哪个词最“像”。</p>
+<pre class="code-block"><code>Logit_中国 = Final_State · Embedding_中国
+           = (1.684×1.0) + (-0.896×0.5) + (-0.551×-0.3) + (-0.236×0.8)
+           ↓         ↓          ↓           ↓
+           = 1.684   + (-0.448)  + 0.165      + (-0.189)
+           = 1.684 - 0.448 + 0.165 - 0.189
+           = 1.212
+
+Logit_的   = Final_State · Embedding_的
+           = (1.684×-0.2) + (-0.896×0.1) + (-0.551×0.4) + (-0.236×-0.5)
+           = -0.337    + (-0.090)   + (-0.220)   + 0.118
+           = -0.337 - 0.090 - 0.220 + 0.118
+           = -0.529
+
+Logit_首都 = Final_State · Embedding_首都
+           = (1.684×0.9) + (-0.896×-0.2) + (-0.551×1.1) + (-0.236×0.4)
+           = 1.516    + 0.179       + (-0.606)   + (-0.094)
+           = 1.516 + 0.179 - 0.606 - 0.094
+           = 0.995
+
+Logit_在   = Final_State · Embedding_在
+           = (1.684×0.3) + (-0.896×0.6) + (-0.551×-0.1) + (-0.236×0.2)
+           = 0.505    + (-0.538)    + 0.055       + (-0.047)
+           = 0.505 - 0.538 + 0.055 - 0.047
+           = -0.025
+
+Logit_哪里 = Final_State · Embedding_哪里
+           = (1.684×-0.5) + (-0.896×0.8) + (-0.551×0.7) + (-0.236×-0.4)
+           = -0.842    + (-0.717)   + (-0.386)   + 0.094
+           = -0.842 - 0.717 - 0.386 + 0.094
+           = -1.851
+
+Logit_？   = Final_State · Embedding_？
+           = (1.684×0.1) + (-0.896×0.8) + (-0.551×0.5) + (-0.236×-0.6)
+           = 0.168    + (-0.717)   + (-0.276)   + 0.142
+           = 0.168 - 0.717 - 0.276 + 0.142
+           = -0.683
+
+Logit_北京 = Final_State · Embedding_北京
+           = (1.684×1.2) + (-0.896×-0.5) + (-0.551×1.3) + (-0.236×0.6)
+           = 2.021    + 0.448       + (-0.716)   + (-0.142)
+           = 2.021 + 0.448 - 0.716 - 0.142
+           = 1.611
+</code></pre>
+
+<p><strong>Logits 结果汇总：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>词</th>
+<th>ID</th>
+<th>Logit（得分）</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>中国</td>
+<td>0</td>
+<td>1.212</td>
+<td>与当前向量较相似</td>
+</tr>
+<tr>
+<td>的</td>
+<td>1</td>
+<td>-0.529</td>
+<td>与当前向量不太相似</td>
+</tr>
+<tr>
+<td>首都</td>
+<td>2</td>
+<td>0.995</td>
+<td>与当前向量较相似</td>
+</tr>
+<tr>
+<td>在</td>
+<td>3</td>
+<td>-0.025</td>
+<td>与当前向量几乎无关</td>
+</tr>
+<tr>
+<td>哪里</td>
+<td>4</td>
+<td>-1.851</td>
+<td>与当前向量非常不相似</td>
+</tr>
+<tr>
+<td>？</td>
+<td>5</td>
+<td>-0.683</td>
+<td>与当前向量不太相似</td>
+</tr>
+<tr>
+<td><strong>北京</strong></td>
+<td><strong>6</strong></td>
+<td><strong>1.611</strong></td>
+<td><strong>与当前向量最相似！</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>解读：</strong> “北京”得分最高（1.611），说明经过 Transformer 层处理后，“？”这个位置的语义向量已经被“拉向”了“北京”的方向——模型学到了“中国的首都”后面最可能跟的是“北京”。</p>
+<hr />
+<p><strong>第二步：Softmax 归一化（把得分变成概率）</strong></p>
+<p>Logits 只是“原始得分”，它们可以是任意实数（正数、负数、大小不一）。我们需要把它们变成“概率”（每个都在 0~1 之间，加起来等于 1）。这就是 Softmax 的工作。</p>
+<p>公式：<code>P(word_i) = exp(Logit_i) / Sum(exp(所有Logit))</code></p>
+<p><strong>(2a) 第一步：对每个 Logit 取指数（exp）</strong></p>
+<p>exp 函数的作用：把任意实数变成正数（因为概率不能是负数），同时放大差距。</p>
+<pre class="code-block"><code>exp(1.212)  = e^1.212  = 3.360    ← 得分较高，exp后变大
+exp(-0.529) = e^-0.529 = 0.589    ← 得分为负，exp后变很小
+exp(0.995)  = e^0.995  = 2.705    ← 得分较高，exp后变大
+exp(-0.025) = e^-0.025 = 0.975    ← 得分接近0，exp后接近1
+exp(-1.851) = e^-1.851 = 0.157    ← 得分很低，exp后接近0
+exp(-0.683) = e^-0.683 = 0.505    ← 得分为负，exp后变小
+exp(1.611)  = e^1.611  = 5.007    ← 得分最高，exp后最大！
+</code></pre>
+
+<p><strong>(2b) 第二步：求所有 exp 的总和</strong></p>
+<pre class="code-block"><code>Sum = 3.360 + 0.589 + 2.705 + 0.975 + 0.157 + 0.505 + 5.007
+    = 13.298
+</code></pre>
+
+<p><strong>(2c) 第三步：每个 exp 除以总和，得到概率</strong></p>
+<pre class="code-block"><code>P_中国 = 3.360 / 13.298 = 0.253 = 25.3%
+P_的   = 0.589 / 13.298 = 0.044 = 4.4%
+P_首都 = 2.705 / 13.298 = 0.203 = 20.3%
+P_在   = 0.975 / 13.298 = 0.073 = 7.3%
+P_哪里 = 0.157 / 13.298 = 0.012 = 1.2%
+P_？   = 0.505 / 13.298 = 0.038 = 3.8%
+P_北京 = 5.007 / 13.298 = 0.377 = 37.7%  ← 最高！
+</code></pre>
+
+<p><strong>验证：</strong> <code>25.3% + 4.4% + 20.3% + 7.3% + 1.2% + 3.8% + 37.7% = 100.0%</code> ✔</p>
+<p><strong>概率分布汇总：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>词</th>
+<th>ID</th>
+<th>Logit</th>
+<th>exp(Logit)</th>
+<th>概率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>中国</td>
+<td>0</td>
+<td>1.212</td>
+<td>3.360</td>
+<td>25.3%</td>
+</tr>
+<tr>
+<td>的</td>
+<td>1</td>
+<td>-0.529</td>
+<td>0.589</td>
+<td>4.4%</td>
+</tr>
+<tr>
+<td>首都</td>
+<td>2</td>
+<td>0.995</td>
+<td>2.705</td>
+<td>20.3%</td>
+</tr>
+<tr>
+<td>在</td>
+<td>3</td>
+<td>-0.025</td>
+<td>0.975</td>
+<td>7.3%</td>
+</tr>
+<tr>
+<td>哪里</td>
+<td>4</td>
+<td>-1.851</td>
+<td>0.157</td>
+<td>1.2%</td>
+</tr>
+<tr>
+<td>？</td>
+<td>5</td>
+<td>-0.683</td>
+<td>0.505</td>
+<td>3.8%</td>
+</tr>
+<tr>
+<td><strong>北京</strong></td>
+<td><strong>6</strong></td>
+<td><strong>1.611</strong></td>
+<td><strong>5.007</strong></td>
+<td><strong>37.7%</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>模型给出的答案：下一个词有 37.7% 的概率是“北京”，25.3% 是“中国”，20.3% 是“首都”。</p>
+<hr />
+<h4 id="7-decoding">步骤⑦ 采样与解码（Decoding）</h4>
+<p>对应全流程概览：“<strong>文本生成</strong>”。</p>
+<p><strong>原理：</strong></p>
+<p>有了概率分布后，模型需要从中“选择”一个词作为输出。这个选择过程叫“采样（Sampling）”。不同的采样策略会产生不同的效果：更确定性的回答 vs 更有创造性的回答。</p>
+<hr />
+<p><strong>第一步：Temperature 温度调控（可选，在 Softmax 之前应用）</strong></p>
+<p>Temperature 是一个超参数，用来控制概率分布的“尖锐程度”。</p>
+<p>公式：<code>Logit_adjusted = Logit / T</code>（先除以温度，再做 Softmax）</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>温度 T</th>
+<th>效果</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T = 1.0</td>
+<td>标准效果，不做任何调整</td>
+<td>正常洗牌</td>
+</tr>
+<tr>
+<td>T &lt; 1.0</td>
+<td>差距被放大，高分词概率更高，输出更确定</td>
+<td>“偏心”的骰子，总掉最大的</td>
+</tr>
+<tr>
+<td>T &gt; 1.0</td>
+<td>差距被缩小，各词概率更接近，输出更随机</td>
+<td>“公平”的骰子，谁都有机会</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>T = 0.5（低温）的完整计算：</strong></p>
+<pre class="code-block"><code>所有 Logit 除以 0.5：
+  北京：1.611 / 0.5 = 3.222
+  中国：1.212 / 0.5 = 2.424
+  首都：0.995 / 0.5 = 1.990
+  在：  -0.025 / 0.5 = -0.050
+  的：  -0.529 / 0.5 = -1.058
+  ？：  -0.683 / 0.5 = -1.366
+  哪里：-1.851 / 0.5 = -3.702
+
+再做 Softmax：
+  exp(3.222) = 25.08   exp(2.424) = 11.29   exp(1.990) = 7.31
+  exp(-0.050) = 0.95   exp(-1.058) = 0.35   exp(-1.366) = 0.26
+  exp(-3.702) = 0.02
+
+  Sum = 25.08 + 11.29 + 7.31 + 0.95 + 0.35 + 0.26 + 0.02 = 45.26
+
+  P_北京 = 25.08 / 45.26 = 55.4%  ← 从 37.7% 升高到 55.4%！
+  P_中国 = 11.29 / 45.26 = 24.9%
+  P_首都 = 7.31 / 45.26 = 16.2%
+  其余词概率几乎为 0
+</code></pre>
+
+<p>结论：低温度让“北京”的优势被放大，模型更“确定”地选择它。</p>
+<p><strong>T = 2.0（高温）的完整计算：</strong></p>
+<pre class="code-block"><code>所有 Logit 除以 2.0：
+  北京：1.611 / 2.0 = 0.806
+  中国：1.212 / 2.0 = 0.606
+  首都：0.995 / 2.0 = 0.498
+  在：  -0.025 / 2.0 = -0.013
+  的：  -0.529 / 2.0 = -0.265
+  ？：  -0.683 / 2.0 = -0.342
+  哪里：-1.851 / 2.0 = -0.926
+
+再做 Softmax：
+  exp(0.806) = 2.24    exp(0.606) = 1.83    exp(0.498) = 1.65
+  exp(-0.013) = 0.99   exp(-0.265) = 0.77   exp(-0.342) = 0.71
+  exp(-0.926) = 0.40
+
+  Sum = 2.24 + 1.83 + 1.65 + 0.99 + 0.77 + 0.71 + 0.40 = 8.59
+
+  P_北京 = 2.24 / 8.59 = 26.1%  ← 从 37.7% 降低到 26.1%
+  P_中国 = 1.83 / 8.59 = 21.3%
+  P_首都 = 1.65 / 8.59 = 19.2%
+  P_在   = 0.99 / 8.59 = 11.5%
+  P_的   = 0.77 / 8.59 = 9.0%
+  P_？   = 0.71 / 8.59 = 8.3%
+  P_哪里 = 0.40 / 8.59 = 4.7%
+</code></pre>
+
+<p>结论：高温度让所有词的概率更接近，模型变得更“随机”。</p>
+<hr />
+<p><strong>第二步：采样策略（从概率分布中选词）</strong></p>
+<p>以 T=1.0 的概率分布为例：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>做法</th>
+<th>本例结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>贪心（Greedy）</td>
+<td>直接取概率最高的词</td>
+<td>“北京”(37.7%)</td>
+</tr>
+<tr>
+<td>Top-K (K=3)</td>
+<td>只保留概率最高的 3 个词，其余归零，重新归一化后随机选</td>
+<td>保留“北京”“中国”“首都”，归一化后为 45.3%/30.4%/24.4%</td>
+</tr>
+<tr>
+<td>Top-P (P=0.9)</td>
+<td>按概率从高到低累加，超过 P 就截断</td>
+<td>37.7%+25.3%+20.3%+7.3%=90.6%&gt;90%，从这 4 个词中选</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Top-K 的完整计算（K=3）：</strong></p>
+<pre class="code-block"><code>步骤1：按概率排序，取前 3 个：
+  北京: 37.7%，中国: 25.3%，首都: 20.3%
+
+步骤2：其余词概率设为 0：
+  在: 0%，的: 0%，？: 0%，哪里: 0%
+
+步骤3：重新归一化（让剩下的加起来 = 100%）：
+  Sum = 37.7% + 25.3% + 20.3% = 83.3%
+  P_北京_new = 37.7% / 83.3% = 45.3%
+  P_中国_new = 25.3% / 83.3% = 30.4%
+  P_首都_new = 20.3% / 83.3% = 24.4%
+
+步骤4：按新概率随机选择（类似掷骰子）
+</code></pre>
+
+<p><strong>Top-P 的完整计算（P=0.9）：</strong></p>
+<pre class="code-block"><code>步骤1：按概率从高到低排序：
+  北京(37.7%) &gt; 中国(25.3%) &gt; 首都(20.3%) &gt; 在(7.3%) &gt; 的(4.4%) &gt; ？(3.8%) &gt; 哪里(1.2%)
+
+步骤2：从高到低累加，直到超过 P=0.9：
+  37.7%                          = 37.7%  &lt; 90% → 继续
+  37.7% + 25.3%                  = 63.0%  &lt; 90% → 继续
+  37.7% + 25.3% + 20.3%         = 83.3%  &lt; 90% → 继续
+  37.7% + 25.3% + 20.3% + 7.3% = 90.6%  &gt; 90% → 截断！
+
+步骤3：保留这 4 个词：北京、中国、首都、在
+
+步骤4：重新归一化后随机选择
+</code></pre>
+
+<hr />
+<p><strong>第三步：反向查表（ID → 文字）</strong></p>
+<p>假设使用贪心解码，选中概率最高的 <strong>ID = 6</strong>。</p>
+<p>Tokenizer 查词表：ID 6 → “北京”。屏幕上打出 <strong>“北京”</strong> 两个字。</p>
+<p><strong>第一个 Token 生成完毕！</strong></p>
+<hr />
+<h4 id="8-decode-kv-cache">步骤⑧ 自回归循环（Decode 阶段 — KV Cache 的核心价值体现）</h4>
+<p>对应全流程概览："<strong>自回归循环</strong>"。</p>
+<p>现在进入 Decode 阶段。模型要继续生成下一个词。关键区别是：<strong>不需要重新处理前面的 6 个 Token</strong>，因为它们的 K 和 V 已经在 Cache 里了！</p>
+<hr />
+<p><strong>Decode 第1步：生成"北京"之后，预测下一个词</strong></p>
+<p><strong>⑧-a. 仅对新 Token "北京" 进行嵌入 + 位置编码：</strong></p>
+<pre class="code-block"><code>X_北京 = Embedding[6] + PE[6] = [1.2, -0.5, 1.3, 0.6]  (位置6)
+</code></pre>
+
+<p><strong>⑧-b. 仅计算"北京"的 Q、K、V：</strong></p>
+<pre class="code-block"><code>Q_北京 = X_北京 · W_Q0 = [计算得到某个2维向量]
+K_北京 = X_北京 · W_K0 = [计算得到某个2维向量]
+V_北京 = X_北京 · W_V0 = [计算得到某个2维向量]
+</code></pre>
+
+<p><strong>⑧-c. KV Cache 写入（追加新 Token 的 K/V）：</strong></p>
+<div class="diagram-container">
+  <div class="section-title" style="color: #00d4ff;">KV Cache — Decode 第1步 写入</div>
+  <div style="margin-bottom:12px;">
+    <div style="color:#48bb78;font-weight:bold;font-size:12px;margin-bottom:6px;">K_cache（+1 追加 K_北京）：</div>
+    <div class="block-grid" style="grid-template-columns: repeat(7, 1fr);">
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_中国</div>
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_的</div>
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_首都</div>
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_在</div>
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_哪里</div>
+      <div class="block-cell" style="border-color:#48bb78;background:#1a3a2a;color:#e2e8f0;">K_？</div>
+      <div class="block-cell" style="border-color:#f0c040;background:#2a2010;color:#f0c040;font-weight:bold;">K_北京<br><span style="font-size:10px;">← 新增</span></div>
+    </div>
+  </div>
+  <div style="margin-bottom:12px;">
+    <div style="color:#9f7aea;font-weight:bold;font-size:12px;margin-bottom:6px;">V_cache（+1 追加 V_北京）：</div>
+    <div class="block-grid" style="grid-template-columns: repeat(7, 1fr);">
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_中国</div>
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_的</div>
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_首都</div>
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_在</div>
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_哪里</div>
+      <div class="block-cell" style="border-color:#9f7aea;background:#1a0a2a;color:#e2e8f0;">V_？</div>
+      <div class="block-cell" style="border-color:#f0c040;background:#2a2010;color:#f0c040;font-weight:bold;">V_北京<br><span style="font-size:10px;">← 新增</span></div>
+    </div>
+  </div>
+  <div style="padding:8px 12px;background:#2a2010;border:1px solid #f0c040;border-radius:6px;font-size:12px;color:#f0c040;text-align:center;">
+    Cache 长度: 6 → 7
+  </div>
+</div>
+
+<p><strong>⑧-d. KV Cache 读取与注意力计算：</strong></p>
+<p>用 <code>Q_北京</code> 与 Cache 中<strong>全部 7 个 K</strong> 做点积 → 缩放 → Softmax → 对全部 7 个 V 加权求和。</p>
+<pre class="code-block"><code>注意力得分 = Q_北京 · [K_中国, K_的, K_首都, K_在, K_哪里, K_？, K_北京]ᵀ / √d_k
+           → Softmax → 权重
+输出 = 权重 · [V_中国, V_的, V_首都, V_在, V_哪里, V_？, V_北京]
+</code></pre>
+
+<p><strong>⑧-e. 后续处理：</strong> 多头拼接 → 残差+LayerNorm → FFN → 残差+LayerNorm → LM Head → Softmax → 采样</p>
+<p>假设模型预测出"是"（如果词表中有的话），或者预测出 <code>&lt;eos&gt;</code>（结束符）。</p>
+<hr />
+<p><strong>Decode 后续步骤（循环）：</strong></p>
+<p>每一步都重复 ⑧-a 到 ⑧-e 的过程：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>Decode 步骤</th>
+<th>新输入Token</th>
+<th>Cache长度</th>
+<th>计算量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第1步</td>
+<td>"北京"</td>
+<td>6→7</td>
+<td>仅1个Token的QKV + 读7个Cache</td>
+</tr>
+<tr>
+<td>第2步</td>
+<td>"是"</td>
+<td>7→8</td>
+<td>仅1个Token的QKV + 读8个Cache</td>
+</tr>
+<tr>
+<td>第3步</td>
+<td>"中国"</td>
+<td>8→9</td>
+<td>仅1个Token的QKV + 读9个Cache</td>
+</tr>
+<tr>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr>
+<td>第N步</td>
+<td><code>&lt;eos&gt;</code></td>
+<td>—</td>
+<td>检测到结束符，停止循环</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<p><strong>终止条件：</strong></p>
+<p>模型之所以能自动停止，是因为训练时每段对话末尾都有 <code>&lt;eos&gt;</code> 标记。模型学会了"回答完整时，下一个最该出现的就是结束符"。</p>
+<pre class="code-block"><code class="language-python"># 推理代码中的终止逻辑（伪代码）
+stop_tokens = [tokenizer.eos_token_id]
+max_length = 2048
+
+for i in range(max_length):
+    # 1. 仅对新Token计算QKV，读取KV Cache，预测下一个Token
+    logits = model(new_token_id, kv_cache=cache)
+    next_token_id = sample(logits)  # 贪心/Top-K/Top-P
+
+    # 2. 检查终止条件
+    if next_token_id in stop_tokens:
+        break  # 遇到结束符，停止生成
+
+    # 3. 输出并继续
+    print(tokenizer.decode(next_token_id), end=&quot;&quot;)  # 流式输出
+    new_token_id = next_token_id  # 下一轮的输入
+
+# 如果循环结束仍未遇到 &lt;eos&gt;，则强制截断
+</code></pre>
+
+<hr />
+<p><strong>KV Cache 效率总结：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>对比</th>
+<th>无 KV Cache</th>
+<th>有 KV Cache</th>
+<th>节省</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生成第1个Token（"北京"）</td>
+<td>计算6个Token的QKV</td>
+<td>6个Token的QKV（Prefill，无法省）</td>
+<td>0%</td>
+</tr>
+<tr>
+<td>生成第2个Token</td>
+<td>重新计算7个Token的QKV</td>
+<td>仅1个Token的QKV + 读Cache</td>
+<td>86%</td>
+</tr>
+<tr>
+<td>生成第3个Token</td>
+<td>重新计算8个Token的QKV</td>
+<td>仅1个Token的QKV + 读Cache</td>
+<td>88%</td>
+</tr>
+<tr>
+<td>生成第N个Token</td>
+<td>重新计算(6+N)个Token的QKV</td>
+<td>仅1个Token的QKV + 读Cache</td>
+<td>(5+N)/(6+N) → 趋近100%</td>
+</tr>
+</tbody>
+</table></div>
+<p>随着生成序列的增长，KV Cache 节省的计算量比例趋近于 100%。这就是为什么 KV Cache 是大模型推理中最重要的优化手段。</p>
+<hr />
+</div><div class="section" id="s8"><h2>总结</h2>
+<h3 id="_20">全流程脑图</h3>
+<p>优秀的候选人应当能够画出如下的脑图并进行连贯讲解：</p>
+<blockquote class="quote">
+<p><strong>用户输入</strong> → [Tokenizer 切分查表] → <strong>Token ID</strong> → [Embedding 查表] → <strong>静态向量</strong> → [逐元素相加] <strong>位置编码</strong> → <strong>第一层输入 X</strong> → [乘以 W_Q, W_K, W_V] → <strong>动态 QKV</strong> → [Q·K 点积 → Softmax → 加权 V] → <strong>注意力输出</strong> → [历史 K,V 存入 KV Cache] → [多层堆叠] → <strong>最终动态向量</strong> → [LM Head 线性投影 + Softmax] → <strong>词表概率分布</strong> → [采样策略] → <strong>新 Token ID</strong> → [Tokenizer 反查] → <strong>输出文本</strong> → [拼接回输入，自回归循环]</p>
+</blockquote>
+<p>大语言模型的文本处理流程是一个将人类语言数学化、特征化，再重新转化为语言的精妙过程。整个流程可以用一句话概括：<strong>文本经过分词器切分为Token，通过词表映射为ID，由嵌入矩阵转换为高维语义向量，经过多层Transformer的QKV注意力机制融合上下文信息，最后通过线性层和Softmax输出概率分布，采样得到下一个Token，循环往复直到生成完整回复。</strong></p>
+<p>其中，KV Cache作为推理阶段的关键优化，通过缓存历史Token的Key和Value向量，避免了自回归生成中的重复计算，将推理效率提升了数十倍。</p>
+<p>能够在这条流水线的每一个节点上给出具体的数值示例，并解释为什么这样设计（如为什么多头、为什么只缓存 KV、为什么需要位置编码），才是真正理解了大模型底层架构的体现。</p>
+<hr />
+<h3 id="_21">附录：核心概念速查表</h3>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>性质</th>
+<th>在流程中的位置</th>
+<th>核心作用</th>
+<th>案例中的体现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>词表 (Vocabulary)</td>
+<td>静态字典，训练后冻结</td>
+<td>流程首尾（编码与解码）</td>
+<td>Token ↔ ID 双向映射</td>
+<td>"苹果"↔ ID 2</td>
+</tr>
+<tr>
+<td>嵌入矩阵 (Embedding)</td>
+<td>静态模型参数</td>
+<td>Tokenizer 之后</td>
+<td>ID → 静态初始向量</td>
+<td>ID 2 → [0.34, 0.91, 0.15, 0.72]</td>
+</tr>
+<tr>
+<td>位置编码 (PE)</td>
+<td>静态/可学习</td>
+<td>嵌入之后、第一层之前</td>
+<td>注入词序信息</td>
+<td>pos=2 → [0.909, -0.416, 0.020, 1.000]</td>
+</tr>
+<tr>
+<td>Q (Query)</td>
+<td>动态中间结果</td>
+<td>Transformer 层内</td>
+<td>当前 Token 的"提问"，用完即弃</td>
+<td>Q_苹果 = [0.825, 0.934]</td>
+</tr>
+<tr>
+<td>K (Key)</td>
+<td>动态 → 缓存</td>
+<td>层内 → KV Cache</td>
+<td>Token 的"身份标签"</td>
+<td>K_cache 持续追加</td>
+</tr>
+<tr>
+<td>V (Value)</td>
+<td>动态 → 缓存</td>
+<td>层内 → KV Cache</td>
+<td>Token 的"实际内容"</td>
+<td>V_cache 持续追加</td>
+</tr>
+<tr>
+<td>注意力权重</td>
+<td>动态计算</td>
+<td>QK 点积后 Softmax</td>
+<td>决定融合多少上下文</td>
+<td>[0.320, 0.395, 0.285]</td>
+</tr>
+<tr>
+<td>KV Cache</td>
+<td>动态运行时缓存</td>
+<td>自回归生成阶段</td>
+<td>避免重复计算历史 K/V</td>
+<td>从 2 个增长到 3 个</td>
+</tr>
+<tr>
+<td>LM Head</td>
+<td>静态模型参数</td>
+<td>最后一层之后</td>
+<td>隐藏向量 → 词表概率</td>
+<td>h → logits → P("苹果")=57.2%</td>
+</tr>
+<tr>
+<td>采样策略</td>
+<td>推理时超参数</td>
+<td>LM Head 之后</td>
+<td>控制生成多样性</td>
+<td>Greedy 选最高概率</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h3 id="transformer">核心面试题：Transformer 推理全流程（问答形式）</h3>
+<p>以下面试题覆盖 Transformer 从输入到输出的完整推理链路，按照数据流顺序排列。</p>
+<hr />
+<h3 id="q1tokenizer-bpe">Q1：Tokenizer 的作用是什么？BPE 算法的核心思想是什么？</h3>
+<p><strong>答：</strong></p>
+<p>Tokenizer 的作用是将人类可读的文本转换为模型可处理的整数序列（Token ID）。它是模型与自然语言之间的桥梁——模型不认识文字，只认识数字。</p>
+<p>BPE（Byte-Pair Encoding）的核心思想是<strong>从字符级别出发，反复合并出现频率最高的相邻字符对</strong>，逐步构建子词词表。例如：<br />
+- 初始词表：所有单个字符 <code>[a, b, c, ..., z]</code><br />
+- 第1轮：统计发现 <code>t</code> 和 <code>h</code> 相邻最多 → 合并为 <code>th</code><br />
+- 第2轮：发现 <code>th</code> 和 <code>e</code> 相邻最多 → 合并为 <code>the</code><br />
+- 重复直到词表达到预设大小（如 32,000）</p>
+<p><strong>追问：训练阶段和推理阶段的 Tokenizer 有什么区别？</strong></p>
+<p>训练阶段是<strong>构建合并规则</strong>（在大规模语料上统计频率），推理阶段是<strong>执行合并规则</strong>（按已有规则切分新文本）。推理时不会产生新的合并规则。</p>
+<hr />
+<h3 id="q2">Q2：词嵌入矩阵的形状是什么？查表操作的本质是什么？</h3>
+<p><strong>答：</strong></p>
+<p>嵌入矩阵的形状是 <code>[vocab_size, d_model]</code>，例如 <code>[32000, 4096]</code>。每一行对应词表中一个 Token 的向量表示。</p>
+<p>查表操作的本质是<strong>以 Token ID 为索引，从矩阵中取出对应的行向量</strong>。例如 Token ID = 5，就取出第5行。这不是计算，而是一次内存读取操作（O(1)复杂度）。</p>
+<p><strong>追问：Word2Vec 的词向量和 Transformer 的嵌入有什么区别？</strong></p>
+<ul>
+<li>Word2Vec 是<strong>静态的</strong>：一个词无论出现在什么语境中，向量都一样。"苹果"在"吃苹果"和"苹果公司"中是同一个向量。</li>
+<li>Transformer 的嵌入层输出虽然也是静态的，但经过注意力层处理后会变成<strong>动态的上下文向量</strong>。同一个"苹果"在不同语境中，经过 Transformer 后输出的向量截然不同。</li>
+</ul>
+<hr />
+<h3 id="q3-transformer">Q3：为什么 Transformer 需要位置编码？如果不加会怎样？</h3>
+<p><strong>答：</strong></p>
+<p>因为自注意力机制是<strong>置换不变的</strong>（Permutation Invariant）——它只做向量之间的点积，不关心向量的顺序。如果不加位置编码，"猫吃鱼"和"鱼吃猫"对模型来说完全一样。</p>
+<p>位置编码为每个位置生成一个独特的向量，加到词嵌入上，让模型能区分"第1个位置的猫"和"第3个位置的猫"。</p>
+<p><strong>追问：正弦位置编码和 RoPE 的区别？</strong></p>
+<ul>
+<li>正弦位置编码（Sinusoidal）：固定公式生成，与词嵌入<strong>相加</strong>，不可学习</li>
+<li>RoPE（旋转位置编码）：对 Q 和 K 向量做<strong>旋转变换</strong>，使得两个位置的点积只取决于它们的相对距离，天然支持外推到更长序列</li>
+</ul>
+<hr />
+<h3 id="q4self-attention-qkv">Q4：Self-Attention 中 Q、K、V 分别代表什么？为什么需要三个不同的矩阵？</h3>
+<p><strong>答：</strong></p>
+<ul>
+<li><strong>Q（Query，查询）</strong>：当前词想要找什么信息——"我在找谁？"</li>
+<li><strong>K（Key，键）</strong>：每个词能提供什么信息——"我是谁？"</li>
+<li><strong>V（Value，值）</strong>：每个词实际携带的内容——"我能给你什么？"</li>
+</ul>
+<p>为什么需要三个不同的矩阵而不是用同一个：因为"找什么"和"是什么"和"给什么"是三个不同的语义角色。用同一个矩阵会让模型无法区分这三种功能。类比图书馆：Q 是你的搜索关键词，K 是书脊上的标签，V 是书的内容。搜索关键词和书脊标签需要在同一个空间中匹配，但书的内容可以是完全不同的东西。</p>
+<hr />
+<h3 id="q5-d_k">Q5：注意力分数的计算为什么要除以 √d_k？</h3>
+<p><strong>答：</strong></p>
+<p>因为 Q 和 K 的点积结果会随着维度 d_k 的增大而增大（方差约等于 d_k）。如果不缩放，当 d_k=128 时，点积值可能达到几十甚至上百，Softmax 会进入饱和区——最大值趋近于1，其他值趋近于0，梯度几乎为零，模型无法学习。</p>
+<p>除以 √d_k 后，点积的方差被归一化为1，Softmax 的输入保持在合理范围内，梯度能正常流动。</p>
+<hr />
+<h3 id="q6causal-mask">Q6：什么是因果掩码（Causal Mask）？训练和推理时的使用有什么区别？</h3>
+<p><strong>答：</strong></p>
+<p>因果掩码是一个下三角矩阵，作用是<strong>禁止每个位置看到它后面的位置</strong>。具体操作是将注意力分数矩阵中上三角部分设为 -∞，经过 Softmax 后这些位置的权重变为0。</p>
+<p><strong>训练时</strong>：必须使用因果掩码。因为训练时整个序列并行输入（Teacher Forcing），如果不加掩码，位置3就能直接看到位置4、5的答案，模型就是在"抄答案"而非"学推理"。</p>
+<p><strong>推理（生成）时</strong>：不需要显式掩码。因为自回归生成是逐词进行的，当模型预测第4个词时，第5个词根本还不存在。因果性由生成顺序天然保证。</p>
+<hr />
+<h3 id="q7multi-head-attention">Q7：多头注意力（Multi-Head Attention）的意义是什么？</h3>
+<p><strong>答：</strong></p>
+<p>多头注意力让模型能<strong>同时从多个不同的语义子空间关注信息</strong>。类比：<br />
+- 头1 可能关注语法关系（主语-谓语）<br />
+- 头2 可能关注指代关系（"它"指代谁）<br />
+- 头3 可能关注位置邻近关系</p>
+<p>每个头有独立的 W_Q、W_K、W_V，在更低维度（d_k = d_model / h）上独立计算注意力，最后拼接起来通过 W_O 融合。这比单个大注意力头更有表达力，因为单头只能学到一种注意力模式。</p>
+<hr />
+<h3 id="q8residual-connection">Q8：残差连接（Residual Connection）解决了什么问题？</h3>
+<p><strong>答：</strong></p>
+<p>残差连接解决了<strong>深层网络的梯度消失和信息退化问题</strong>。公式：<code>Output = X + SubLayer(X)</code></p>
+<p>核心好处：<br />
+1. <strong>梯度高速公路</strong>：反向传播时梯度可以直接通过加法跳过子层，不会被连续的非线性变换衰减<br />
+2. <strong>信息保留</strong>：即使子层学废了（输出全零），最差情况也是恒等映射（输出=输入），不会丢失信息<br />
+3. <strong>残差流（Residual Stream）</strong>：可以把整个 Transformer 理解为一条信息高速公路，每一层只是在上面"添加修正"，而非完全重写</p>
+<hr />
+<h3 id="q9layernorm-pre-norm-post-norm">Q9：LayerNorm 的作用是什么？Pre-Norm 和 Post-Norm 有什么区别？</h3>
+<p><strong>答：</strong></p>
+<p>LayerNorm 的作用是<strong>将每个向量的各维度归一化为均值0、方差1</strong>，防止数值在层间累积变得过大或过小，稳定训练过程。</p>
+<p>公式：<code>LN(x) = γ × (x - μ) / √(σ² + ε) + β</code></p>
+<ul>
+<li><strong>Post-Norm</strong>（原始 Transformer）：<code>LN(X + SubLayer(X))</code>，先残差再归一化。训练不稳定，需要 Warmup。</li>
+<li><strong>Pre-Norm</strong>（现代大模型如 GPT、LLaMA）：<code>X + SubLayer(LN(X))</code>，先归一化再进子层。训练更稳定，收敛更快，是当前主流做法。</li>
+</ul>
+<hr />
+<h3 id="q10ffn-transformer-swiglu-relu">Q10：FFN（前馈网络）在 Transformer 中的角色是什么？SwiGLU 相比 ReLU 有什么优势？</h3>
+<p><strong>答：</strong></p>
+<p>如果说注意力层是"开会讨论"（词与词之间交流），FFN 就是"回家独立思考"（每个词单独进行非线性变换）。FFN 被认为是模型的<strong>知识存储器</strong>——大量的世界知识以参数形式存储在 FFN 的权重矩阵中。</p>
+<p>FFN 的结构是先升维（×4）再降维，中间加激活函数。</p>
+<p>SwiGLU 相比 ReLU 的优势：<br />
+- ReLU 会将所有负值直接置零（"硬门控"），导致大量神经元永久死亡<br />
+- SwiGLU 使用 Swish 激活（平滑的软门控）+ 门控机制（两路相乘），能更精细地控制信息流通，实验表明在同等参数量下性能更好</p>
+<hr />
+<h3 id="q11-kv-cache-k-v-q">Q11：什么是 KV Cache？为什么只缓存 K 和 V，不缓存 Q？</h3>
+<p><strong>答：</strong></p>
+<p>KV Cache 是推理时的优化技术：将已经计算过的历史 Token 的 K 和 V 向量缓存起来，避免每生成一个新词都重新计算所有历史 Token 的 K/V。</p>
+<p><strong>为什么不缓存 Q：</strong></p>
+<p>在自回归生成时，每一步只有<strong>最新的那一个 Token 需要作为 Query 去查询所有历史</strong>。历史 Token 不需要再当 Query（它们的输出已经算完了）。所以 Q 永远只有1个（当前 Token 的），没有缓存的必要。</p>
+<p>而 K 和 V 是被查询的对象——当前 Token 的 Q 需要和<strong>所有历史</strong>的 K 计算注意力，再用<strong>所有历史</strong>的 V 加权求和。所以历史的 K/V 必须保留。</p>
+<hr />
+<h3 id="q12prefill-decode">Q12：Prefill 阶段和 Decode 阶段的核心区别是什么？</h3>
+<p><strong>答：</strong></p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Prefill（预填充）</th>
+<th>Decode（解码）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>处理Token数</td>
+<td>一次处理整个 Prompt（如1000个）</td>
+<td>每次只处理1个新Token</td>
+</tr>
+<tr>
+<td>并行性</td>
+<td>完全并行（矩阵乘法）</td>
+<td>串行（逐词生成）</td>
+</tr>
+<tr>
+<td>计算特征</td>
+<td>计算密集型（Compute-Bound）</td>
+<td>访存密集型（Memory-Bound）</td>
+</tr>
+<tr>
+<td>GPU利用率</td>
+<td>高（~80%）</td>
+<td>极低（&lt;1%）</td>
+</tr>
+<tr>
+<td>KV Cache</td>
+<td>一次性生成并写入</td>
+<td>每步追加1组K/V</td>
+</tr>
+<tr>
+<td>瓶颈</td>
+<td>GPU算力不够快</td>
+<td>显存带宽不够快</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>一句话总结</strong>：Prefill 是"一次性读完题目"，Decode 是"逐字写答案"。</p>
+<hr />
+<h3 id="q13prefill-token-rnn">Q13：Prefill 阶段为什么比逐个处理 Token 快？这和 RNN 有什么本质区别？</h3>
+<p><strong>答：</strong></p>
+<p>Prefill 阶段是<strong>一次矩阵乘法同时计算所有 Token 的 Q/K/V</strong>：<code>Q = X × W_Q</code>，其中 X 的形状是 <code>[L, d_model]</code>，L 个 Token 的计算互不依赖，GPU 的数千个核心可以同时处理。</p>
+<p>RNN 的根本问题是<strong>严格的串行依赖</strong>：<code>h_t = f(W_h × h_{t-1} + W_x × x_t)</code>，第 t 步必须等第 t-1 步完成才能开始。1000 个 Token 需要 1000 个时间步。</p>
+<p>Transformer 处理 1000 个 Token 只需要约1个时间步（一次大矩阵乘法），这就是 Transformer 取代 RNN 的根本原因——<strong>将序列建模从 O(L) 的串行计算变为 O(1) 的并行计算</strong>。</p>
+<hr />
+<h3 id="q14lm-head">Q14：LM Head 的作用是什么？它和嵌入矩阵有什么关系？</h3>
+<p><strong>答：</strong></p>
+<p>LM Head 是模型最后一层的线性投影，作用是将 Transformer 输出的隐藏向量（d_model 维）映射到词表大小的 Logits 向量。本质上是计算当前向量与词表中每个词的"匹配度"。</p>
+<p><code>Logits = h_last × W_LM</code>，其中 W_LM 形状为 <code>[d_model, vocab_size]</code></p>
+<p><strong>与嵌入矩阵的关系（Weight Tying）</strong>：很多模型中 W_LM = 嵌入矩阵的转置。这意味着：<br />
+- 嵌入层：Token ID → 向量（查字典）<br />
+- LM Head：向量 → Token ID（反查字典）</p>
+<p>两者共享同一套"词义空间"，减少参数量的同时提升性能。</p>
+<hr />
+<h3 id="q15temperature-top-k-top-p">Q15：Temperature 参数如何影响生成结果？Top-K 和 Top-P 的区别是什么？</h3>
+<p><strong>答：</strong></p>
+<p>Temperature 在 Softmax 之前对 Logits 进行缩放：<code>P = Softmax(Logits / T)</code></p>
+<ul>
+<li>T &lt; 1（如0.3）：放大差异，高概率词更突出，生成更确定、更保守</li>
+<li>T = 1：原始分布</li>
+<li>T &gt; 1（如2.0）：缩小差异，概率分布更均匀，生成更随机、更有创意</li>
+<li>T → 0：等价于 Greedy（永远选最高概率）</li>
+<li>T → ∞：等价于均匀随机</li>
+</ul>
+<p><strong>Top-K vs Top-P：</strong></p>
+<ul>
+<li>Top-K：只保留概率最高的 K 个词，其余置零后重新归一化。问题是 K 是固定的——有时候只有2个词合理（K=50太多），有时候有100个词都合理（K=50太少）。</li>
+<li>Top-P（Nucleus Sampling）：按概率从高到低累加，直到累计概率超过 P（如0.9），保留这些词。它能<strong>自适应地调整候选词数量</strong>——分布集中时只保留少数词，分布分散时保留更多词。</li>
+</ul>
+<hr />
+<h3 id="q16">Q16：模型怎么知道什么时候停止生成？</h3>
+<p><strong>答：</strong></p>
+<p>两种终止机制：</p>
+<ol>
+<li>
+<p><strong><code>&lt;eos&gt;</code> 终止符</strong>：词表中有一个特殊的结束标记（如 <code>&lt;eos&gt;</code> 或 <code>&lt;|endoftext|&gt;</code>）。当模型在某一步采样出这个 Token 时，生成立即停止。这是模型"主动"决定结束。</p>
+</li>
+<li>
+<p><strong>max_length 强制截断</strong>：设置最大生成长度（如2048），达到上限后强制停止。这是防止模型无限生成的安全机制。</p>
+</li>
+</ol>
+<p>实际系统中两者同时生效，谁先触发就停止。</p>
+<hr />
+<h3 id="q17kv-cache">Q17：KV Cache 的显存占用如何计算？有哪些优化方法？</h3>
+<p><strong>答：</strong></p>
+<p>单个 Token 的 KV Cache 显存：<code>2 × n_layers × d_model × 2字节（FP16）</code></p>
+<p>以 LLaMA-3 70B 为例（80层，d_model=8192）：<br />
+- 单 Token：2 × 80 × 8192 × 2 = 2.5 MB<br />
+- 4096 长度序列：2.5 MB × 4096 = 10 GB</p>
+<p>主要优化方法：</p>
+<div style="overflow-x:auto;"><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>原理</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GQA/MQA</td>
+<td>多个Q头共享K/V头</td>
+<td>Cache 减少 4-32 倍</td>
+</tr>
+<tr>
+<td>KV Cache 量化</td>
+<td>FP16 → INT8/INT4</td>
+<td>减少 2-4 倍</td>
+</tr>
+<tr>
+<td>PagedAttention</td>
+<td>分页管理，消除碎片</td>
+<td>浪费率从60%降至&lt;4%</td>
+</tr>
+<tr>
+<td>Offloading</td>
+<td>GPU→CPU→磁盘分层</td>
+<td>支持超长上下文</td>
+</tr>
+<tr>
+<td>Prefix Caching</td>
+<td>共享相同前缀的Cache</td>
+<td>多用户场景节省 90%+</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h3 id="q18-teacher-forcing">Q18：训练时的 Teacher Forcing 是什么？为什么不用模型自己的预测作为下一步输入？</h3>
+<p><strong>答：</strong></p>
+<p>Teacher Forcing 是指训练时<strong>每一步都用真实的目标序列作为输入</strong>，而非模型上一步的预测结果。</p>
+<p>为什么不用模型自己的预测：<br />
+1. <strong>误差累积</strong>：如果第1步预测错了，错误会传递到第2步，第2步基于错误输入又会更错，像滚雪球一样<br />
+2. <strong>无法并行</strong>：如果要用上一步的输出，就必须等上一步完成，变成串行计算，无法利用 GPU 并行<br />
+3. <strong>训练不稳定</strong>：早期模型预测几乎是随机的，基于随机输入训练会导致梯度混乱</p>
+<p>Teacher Forcing + 因果掩码实现了<strong>训练时的并行化</strong>：所有位置同时计算，每个位置只能看到前面的真实 Token，一次前向传播就能得到所有位置的损失。</p>
+<hr />
+<h3 id="q19transformer">Q19：Transformer 推理时，为什么只取最后一个位置的输出来预测下一个词？</h3>
+<p><strong>答：</strong></p>
+<p>因为在因果注意力中，<strong>只有最后一个位置能看到所有前面的 Token</strong>。具体来说：<br />
+- 位置1只能看到自己<br />
+- 位置2能看到位置1和自己<br />
+- ...<br />
+- 位置L能看到位置1到L的所有 Token</p>
+<p>所以位置L的输出向量是唯一一个融合了<strong>完整上下文信息</strong>的向量，用它来预测"下一个词应该是什么"是最合理的。</p>
+<hr />
+<h3 id="q20">Q20：完整描述一下用户输入"中国的首都在哪里？"后，模型生成"北京"的全过程。</h3>
+<p><strong>答：</strong></p>
+<p><strong>Prefill 阶段（处理输入）：</strong><br />
+1. Tokenizer 将"中国的首都在哪里？"切分为 Token 序列，映射为 ID 列表<br />
+2. 用 ID 查嵌入矩阵得到每个 Token 的向量<br />
+3. 加上位置编码<br />
+4. 送入 Transformer 层（以下每层重复）：<br />
+   - 计算所有 Token 的 Q/K/V（一次矩阵乘法，并行）<br />
+   - <strong>写入 KV Cache</strong>：将所有 K、V 存入缓存<br />
+   - 计算注意力（Q×K^T / √d_k → 因果掩码 → Softmax → ×V）<br />
+   - 残差 + LayerNorm<br />
+   - FFN (SwiGLU) + 残差 + LayerNorm<br />
+5. 取最后一个位置（"？"）的输出向量<br />
+6. 通过 LM Head 得到词表大小的 Logits<br />
+7. Softmax + 采样 → 选出"北"</p>
+<p><strong>Decode 阶段（生成"京"）：</strong><br />
+1. 将"北"的 ID 查嵌入矩阵 + 位置编码<br />
+2. 送入 Transformer 层：<br />
+   - 只计算"北"这一个 Token 的 Q/K/V<br />
+   - <strong>写入 KV Cache</strong>：将"北"的 K、V 追加到缓存末尾<br />
+   - <strong>读取 KV Cache</strong>：用"北"的 Q 与缓存中所有历史 K 计算注意力<br />
+   - 用注意力权重对缓存中所有历史 V 加权求和<br />
+   - 残差 + LayerNorm + FFN + 残差 + LayerNorm<br />
+3. 通过 LM Head + Softmax + 采样 → 选出"京"<br />
+4. 继续循环，直到生成 <code>&lt;eos&gt;</code> 或达到最大长度</p>
+</div>
+
+</div>
+</body>
+</html>
